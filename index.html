@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leading AI Conversations — Manager Simulation</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --charcoal: #2C2C2E;
+  --magenta: #C8006E;
+  --emerald: #007A5E;
+  --blue: #005B9A;
+  --light-bg: #F7F5F2;
+  --mid-bg: #EDEAE5;
+  --white: #FFFFFF;
+  --text-main: #1A1A1A;
+  --text-muted: #6B6B6B;
+  --border: #D8D3CC;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--light-bg);color:var(--text-main);line-height:1.6;min-height:100vh;}
+
+h1,h2,h3{font-family:'DM Serif Display',serif;}
+h1{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.15;}
+h2{font-size:clamp(1.3rem,2.5vw,1.8rem);}
+h3{font-size:1.15rem;}
+
+/* ── PROGRESS BAR ── */
+.progress-bar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--white);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:14px;}
+.progress-logo{font-family:'DM Serif Display',serif;font-size:0.88rem;color:var(--charcoal);white-space:nowrap;display:flex;align-items:center;gap:7px;}
+.progress-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--magenta);flex-shrink:0;}
+.progress-steps{display:flex;gap:3px;flex:1;align-items:center;}
+.progress-step{height:4px;border-radius:2px;flex:1;background:var(--mid-bg);transition:background 0.4s;}
+.progress-step.active{background:var(--magenta);}
+.progress-step.done{background:var(--emerald);}
+.progress-label{font-size:0.73rem;color:var(--text-muted);white-space:nowrap;}
+.mode-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.05em;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap;}
+.mode-badge.solo{background:#FFF0E5;color:#C44A00;border:1px solid #F5C9A8;}
+.mode-badge.team{background:#E5F5EE;color:#007A5E;border:1px solid #A8D9C6;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;padding-top:52px;padding-bottom:52px;}
+.screen.active{display:block;}
+.container{max-width:820px;margin:0 auto;padding:40px 24px;}
+
+/* ── BUTTONS ── */
+.btn-primary{background:var(--magenta);color:var(--white);border:none;border-radius:var(--radius-sm);padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{background:#a8005c;transform:translateY(-1px);box-shadow:var(--shadow);}
+.btn-primary:disabled{opacity:0.38;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-secondary{background:transparent;color:var(--charcoal);border:2px solid var(--border);border-radius:var(--radius-sm);padding:11px 22px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.btn-secondary:hover{border-color:var(--charcoal);background:var(--mid-bg);}
+.btn-ghost{background:transparent;border:none;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-size:0.85rem;cursor:pointer;padding:8px 12px;border-radius:var(--radius-sm);}
+.btn-ghost:hover{background:var(--mid-bg);color:var(--charcoal);}
+
+/* ── INTRO ── */
+.intro-hero{background:var(--charcoal);color:var(--white);padding:60px 24px 0;text-align:center;overflow:hidden;position:relative;}
+.intro-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:300px;height:300px;background:radial-gradient(circle,rgba(200,0,110,0.15) 0%,transparent 70%);pointer-events:none;}
+.intro-label{display:inline-block;font-size:0.73rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--magenta);border:1px solid rgba(200,0,110,0.4);padding:4px 12px;border-radius:20px;margin-bottom:18px;}
+.intro-hero h1{color:var(--white);margin-bottom:14px;}
+.intro-hero p{font-size:1.05rem;color:rgba(255,255,255,0.72);max-width:540px;margin:0 auto 36px;}
+.intro-stats{display:flex;justify-content:center;gap:24px;padding:28px 0 0;flex-wrap:wrap;}
+.intro-stat{text-align:center;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:18px 24px;min-width:120px;}
+.intro-stat .num{font-family:'DM Serif Display',serif;font-size:1.9rem;color:var(--white);line-height:1;}
+.intro-stat .lbl{font-size:0.7rem;color:rgba(255,255,255,0.5);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em;}
+.intro-body{background:var(--white);}
+
+/* mode cards */
+.mode-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;}
+@media(max-width:520px){.mode-options{grid-template-columns:1fr;}}
+.mode-card{background:var(--light-bg);border:2px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;cursor:pointer;transition:all 0.2s;display:flex;align-items:flex-start;gap:12px;}
+.mode-card:hover{border-color:var(--magenta);}
+.mode-card.selected{border-color:var(--magenta);background:#FFF5FB;}
+.mode-card .mc-icon{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+.mode-card h4{font-size:0.92rem;font-weight:600;margin-bottom:3px;}
+.mode-card p{font-size:0.8rem;color:var(--text-muted);margin:0;}
+
+/* framework */
+.framework-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+@media(max-width:520px){.framework-grid{grid-template-columns:1fr;}}
+.fw-step{background:var(--light-bg);border-left:4px solid var(--blue);padding:13px 15px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;}
+.fw-step .qn{font-family:'DM Serif Display',serif;font-size:1.3rem;color:var(--blue);line-height:1;margin-bottom:3px;}
+.fw-step .qt{font-size:0.84rem;font-weight:600;color:var(--charcoal);margin-bottom:3px;}
+.fw-step .qd{font-size:0.77rem;color:var(--text-muted);}
+
+/* ── PERSONA HEADER ── */
+.persona-header{background:var(--charcoal);padding:36px 24px 28px;color:var(--white);}
+.p-num{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:7px;}
+.p-emoji{font-size:2.2rem;margin-bottom:10px;display:block;}
+.persona-header h2{color:var(--white);margin-bottom:7px;}
+.p-tagline{font-style:italic;color:rgba(255,255,255,0.62);font-size:0.97rem;}
+.p-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;}
+.p-tag{font-size:0.72rem;font-weight:500;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:20px;color:rgba(255,255,255,0.78);}
+
+/* ── SCENARIO ── */
+.scenario-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:20px;border-left:5px solid var(--blue);}
+.scene-label{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:7px;}
+.scene-quote{background:var(--light-bg);border-left:3px solid var(--magenta);padding:13px 17px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-style:italic;color:var(--charcoal);margin:14px 0;font-size:0.93rem;}
+.scene-ctx{font-size:0.88rem;color:var(--text-muted);line-height:1.7;}
+
+
+
+/* ── CHOICES ── */
+.decision-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:26px 28px;margin-bottom:18px;}
+.decision-card h3{margin-bottom:4px;}
+.d-prompt{font-size:0.86rem;color:var(--text-muted);margin-bottom:18px;}
+.individual-note{background:#EAF4FF;border:1px solid #BDD9F5;border-radius:var(--radius-sm);padding:10px 14px;font-size:0.8rem;color:#1A4E7C;margin-bottom:16px;display:flex;gap:8px;align-items:flex-start;}
+.choices-list{display:flex;flex-direction:column;gap:9px;}
+.choice-item{border:2px solid var(--border);border-radius:var(--radius-sm);padding:15px 18px;cursor:pointer;transition:all 0.18s;display:flex;align-items:flex-start;gap:13px;position:relative;overflow:hidden;}
+.choice-item::before{content:'';position:absolute;top:0;left:0;bottom:0;width:4px;background:transparent;transition:background 0.18s;}
+.choice-item:hover:not(.locked){border-color:var(--charcoal);background:var(--light-bg);}
+.choice-item.selected{border-color:var(--magenta);background:#FFF5FB;}
+.choice-item.selected::before{background:var(--magenta);}
+.choice-item.r-best{border-color:var(--emerald);background:#F0FBF7;}
+.choice-item.r-best::before{background:var(--emerald);}
+.choice-item.r-ok{border-color:#F5A623;background:#FFFBF0;}
+.choice-item.r-ok::before{background:#F5A623;}
+.choice-item.r-drift{border-color:#B8B2A8;background:#F9F7F4;}
+.choice-item.r-drift::before{background:#B8B2A8;}
+.choice-item.r-avoid{border-color:#B8B2A8;background:#F9F7F4;}
+.choice-item.r-avoid::before{background:#B8B2A8;}
+.choice-item.locked{cursor:default;}
+.c-letter{font-family:'DM Serif Display',serif;font-size:1.15rem;color:var(--text-muted);min-width:22px;line-height:1;padding-top:2px;flex-shrink:0;}
+.r-best .c-letter{color:var(--emerald);}
+.r-drift .c-letter{color:#8A847C;}
+.r-avoid .c-letter{color:#8A847C;}
+.c-body{flex:1;}
+.c-body strong{display:block;font-size:0.9rem;font-weight:600;margin-bottom:3px;}
+.c-body p{font-size:0.82rem;color:var(--text-muted);line-height:1.5;margin:0;}
+.c-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.05em;padding:2px 8px;border-radius:20px;text-transform:uppercase;white-space:nowrap;align-self:flex-start;flex-shrink:0;display:none;}
+.r-best .c-badge{display:inline-block;background:#D4EEE7;color:#005B3E;}
+.r-drift .c-badge{display:inline-block;background:#EDEAE5;color:#6B6B6B;}
+.r-ok .c-badge{display:inline-block;background:#EAF4F0;color:#007A5E;}
+.r-avoid .c-badge{display:inline-block;background:#EDEAE5;color:#6B6B6B;}
+
+/* ── COMBINED CHOICE ROW ── */
+.combined-choices{display:flex;flex-direction:column;gap:9px;}
+.combined-row{display:flex;align-items:stretch;border:2px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;transition:border-color 0.15s;}
+.combined-row:hover:not(.locked){border-color:var(--charcoal);}
+.combined-row.selected{border-color:var(--magenta);}
+.combined-row.r-best{border-color:var(--emerald);}
+.combined-row.r-drift{border-color:#B8B2A8;}
+.combined-row.r-ok{border-color:#F5A623;}
+.instinct-col{width:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--mid-bg);border-right:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
+.instinct-col:hover{background:var(--border);}
+.instinct-col.locked{cursor:default;pointer-events:none;}
+.combined-row.instinct-checked .instinct-col{background:#FFF0FA;border-right-color:rgba(200,0,110,0.2);}
+.combined-row.r-best.selected .select-col{background:var(--persona-color,var(--emerald)) !important;}
+.instinct-col-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;background:white;transition:all 0.15s;flex-shrink:0;}
+.combined-row.instinct-checked .instinct-col-box{background:var(--magenta);border-color:var(--magenta);}
+.instinct-col-check{color:white;font-size:0.65rem;display:none;}
+.combined-row.instinct-checked .instinct-col-check{display:block;}
+.select-col{flex:1;display:flex;align-items:flex-start;gap:12px;padding:14px 16px;cursor:pointer;transition:background 0.15s;}
+.select-col:hover{background:var(--light-bg);}
+.combined-row.selected .select-col{background:#FFF5FB;}
+.combined-row.r-best .select-col{background:#F0FBF7;}
+.combined-row.r-drift .select-col{background:#F9F7F4;}
+.combined-row.locked .select-col,.combined-row.locked .instinct-col{cursor:default;}
+.col-instructions{display:grid;grid-template-columns:44px 1fr;gap:0;margin-bottom:8px;align-items:end;}
+.col-inst-check{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--magenta);text-align:center;padding:0 4px;line-height:1.3;}
+.col-inst-select{font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--charcoal);padding-left:16px;line-height:1.3;}
+.self-check-section{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:18px;display:none;border-left:5px solid var(--magenta);}
+.self-check-section.show{display:block;}
+.self-check-heading{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--magenta);margin-bottom:6px;}
+.self-check-sub{font-size:0.86rem;color:var(--text-muted);margin-bottom:16px;line-height:1.6;}
+.instinct-list{display:flex;flex-direction:column;gap:8px;}
+.instinct-item{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;user-select:none;}
+.instinct-item:hover{border-color:var(--magenta);background:#FFF5FB;}
+.instinct-item.checked{border-color:var(--magenta);background:#FFF5FB;}
+.instinct-item.correct-instinct{border-color:var(--emerald);background:#F0FBF7;}
+.instinct-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;background:white;}
+.instinct-item.checked .instinct-check,.instinct-item.correct-instinct .instinct-check{background:var(--magenta);border-color:var(--magenta);}
+.instinct-item.correct-instinct .instinct-check{background:var(--emerald);border-color:var(--emerald);}
+.instinct-check-mark{color:white;font-size:0.7rem;display:none;}
+.instinct-item.checked .instinct-check-mark,.instinct-item.correct-instinct .instinct-check-mark{display:block;}
+.instinct-text{font-size:0.84rem;color:var(--charcoal);line-height:1.5;}
+.instinct-drift-tag{font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-top:3px;}
+.instinct-item.checked .instinct-drift-tag{color:var(--magenta);}
+.instinct-item.correct-instinct .instinct-drift-tag{color:var(--emerald);}
+/* ── PERSONA VALUE BOX ── */
+.persona-value-box{border-radius:var(--radius);padding:24px 28px;margin-bottom:18px;display:none;color:white;}
+.persona-value-box.show{display:block;}
+.pvb-era-label{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.7;margin-bottom:10px;}
+.pvb-strengths{font-size:0.88rem;font-weight:600;margin-bottom:14px;line-height:1.65;opacity:0.95;}
+.pvb-become-label{font-size:0.7rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.65;margin-bottom:5px;}
+.pvb-become{font-size:0.88rem;font-weight:700;margin-bottom:12px;line-height:1.6;}
+.pvb-tagline{font-size:0.84rem;font-style:italic;opacity:0.8;}
+
+/* ── INSTINCT COMPARISON ── */
+.instinct-comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px;}
+@media(max-width:600px){.instinct-comparison{grid-template-columns:1fr;}}
+.ic-col{background:var(--light-bg);border-radius:var(--radius-sm);padding:16px 18px;}
+.ic-col-label{font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.ic-col-label .ic-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ic-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);font-size:0.83rem;}
+.ic-row:last-child{border-bottom:none;}
+.ic-row-name{flex:1;color:var(--charcoal);font-weight:500;}
+.ic-bar-wrap{width:60px;}
+.ic-bar-bg{height:5px;background:var(--border);border-radius:3px;}
+.ic-bar-fill{height:100%;border-radius:3px;transition:width 0.6s;}
+.ic-count{font-size:0.72rem;font-weight:700;min-width:20px;text-align:right;}
+.ic-gap-note{font-size:0.78rem;color:var(--text-muted);margin-top:12px;padding:10px 12px;background:var(--white);border-radius:var(--radius-sm);border-left:3px solid var(--magenta);line-height:1.55;}
+/* ── IMPACT CHECKBOXES ── */
+.impact-check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;font-size:0.86rem;color:var(--charcoal);line-height:1.5;background:var(--light-bg);}
+.impact-check-item:hover{border-color:var(--magenta);background:#FFF5FB;}
+.impact-check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--magenta);flex-shrink:0;margin-top:2px;cursor:pointer;}
+.impact-check-item:has(input:checked){border-color:var(--magenta);background:#FFF5FB;}
+.impact-check-item span{flex:1;}
+
+/* ── DRIFT ANALYSIS ── */
+.drift-analysis-panel{background:var(--mid-bg);border-radius:var(--radius);padding:22px 26px;margin-bottom:18px;display:none;border-left:4px solid var(--charcoal);}
+.drift-analysis-panel.show{display:block;}
+.drift-analysis-panel h4{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+.drift-analysis-panel .da-pattern{font-size:0.95rem;font-weight:700;color:var(--charcoal);margin-bottom:4px;}
+.drift-analysis-panel .da-desc{font-size:0.84rem;color:var(--text-muted);line-height:1.6;margin-bottom:10px;}
+.drift-analysis-panel .da-best{font-size:0.84rem;color:var(--charcoal);line-height:1.6;padding:12px 14px;background:white;border-radius:var(--radius-sm);border-left:3px solid var(--emerald);}
+
+/* ── FLIP CARDS ── */
+.flip-cards-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--charcoal);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.flip-cards-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.flip-cards-hint{font-size:0.78rem;color:var(--text-muted);margin-bottom:14px;}
+.flip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:580px){.flip-grid{grid-template-columns:1fr;}}
+.flip-card{cursor:pointer;perspective:1000px;}
+.flip-card{cursor:pointer;perspective:1000px;min-height:160px;}
+.flip-card-inner{position:relative;width:100%;min-height:160px;transition:transform 0.45s cubic-bezier(0.4,0,0.2,1);transform-style:preserve-3d;}
+.flip-card.flipped .flip-card-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;top:0;left:0;width:100%;min-height:160px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius-sm);padding:16px 18px;display:flex;flex-direction:column;box-sizing:border-box;}
+.flip-front{background:var(--charcoal);color:white;}
+.flip-back{background:white;color:var(--charcoal);transform:rotateY(180deg);border:2px solid var(--emerald);}
+.flip-step-num{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--magenta);line-height:1;}
+.flip-say{font-size:0.82rem;font-style:italic;color:rgba(255,255,255,0.9);line-height:1.5;flex:1;padding:6px 0;}
+.flip-tap{font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.flip-back-label{font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--emerald);margin-bottom:6px;}
+.flip-why{font-size:0.8rem;color:var(--charcoal);line-height:1.55;flex:1;}
+
+/* reveal controls */
+.reveal-controls{margin-top:14px;display:none;gap:10px;align-items:center;flex-wrap:wrap;}
+.reveal-controls.show{display:flex;}
+
+/* ── REVEAL PANEL ── */
+.reveal-panel{display:none;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px 28px;margin-bottom:18px;box-shadow:var(--shadow);}
+.reveal-panel.show{display:block;}
+.reveal-panel h3{color:var(--charcoal);margin-bottom:14px;}
+.reveal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:580px){.reveal-grid{grid-template-columns:1fr;}}
+.r-card{background:var(--light-bg);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);}
+.r-card .rc-lbl{font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;color:var(--text-muted);}
+.r-card p{font-size:0.84rem;line-height:1.6;color:var(--charcoal);}
+.r-card.best-card{border-color:var(--emerald);background:#F0FBF7;}
+.r-card.best-card .rc-lbl{color:var(--emerald);}
+.r-card.match-card{border-color:var(--emerald);background:#F0FBF7;}
+.r-card.match-card .rc-lbl{color:var(--emerald);}
+.r-card.my-card .rc-lbl{color:var(--magenta);}
+.r-card.my-card{border-color:var(--magenta);background:#FFF5FB;}
+.lm-list h4{font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:10px;}
+.lm-step{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.07);}
+.lm-step:last-child{border-bottom:none;}
+.lm-num{width:22px;height:22px;background:var(--magenta);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0;color:white;}
+.lm-text{font-size:0.83rem;opacity:0.9;line-height:1.5;}
+.lm-text strong{display:block;margin-bottom:1px;}
+
+/* goal tiers */
+.goal-section{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:18px;display:none;}
+.goal-section.show{display:block;}
+.goal-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+@media(max-width:580px){.goal-tiers{grid-template-columns:1fr;}}
+.gt{background:var(--light-bg);border-radius:var(--radius-sm);padding:14px;border-top:4px solid var(--border);}
+.gt.good{border-color:var(--blue);}
+.gt.better{border-color:var(--emerald);}
+.gt.stretch{border-color:var(--magenta);}
+.gt-lbl{font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:7px;}
+.gt.good .gt-lbl{color:var(--blue);}
+.gt.better .gt-lbl{color:var(--emerald);}
+.gt.stretch .gt-lbl{color:var(--magenta);}
+.gt p{font-size:0.81rem;color:var(--charcoal);line-height:1.5;}
+
+/* ── REFLECTION ── */
+.reflection-section{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 28px;margin-bottom:18px;display:none;}
+.reflection-section.show{display:block;}
+.ref-label{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.ref-label.team-color{color:var(--blue);}
+.ref-label.solo-color{color:#C44A00;}
+.reflection-section ul{padding-left:18px;margin-bottom:14px;}
+.reflection-section li{font-size:0.86rem;color:var(--charcoal);margin-bottom:7px;line-height:1.55;}
+.reflection-textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.86rem;resize:vertical;min-height:78px;background:var(--light-bg);color:var(--text-main);}
+.reflection-textarea:focus{outline:none;border-color:var(--blue);background:var(--white);}
+
+/* ── NAV ── */
+.nav-buttons{display:flex;justify-content:space-between;gap:12px;padding:14px 0 40px;align-items:center;}
+.nav-hint{font-size:0.76rem;color:var(--text-muted);text-align:center;flex:1;}
+
+/* ── 30-DAY PLAN ── */
+.plan-header{background:var(--emerald);padding:36px 24px 28px;color:var(--white);}
+.plan-header h2,.plan-header p{color:var(--white);}
+.plan-header p{opacity:0.75;margin-top:8px;font-size:0.95rem;}
+.plan-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:20px;}
+.step-badge{display:inline-flex;align-items:center;gap:7px;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--magenta);margin-bottom:10px;}
+.step-badge .sn{width:20px;height:20px;background:var(--magenta);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.68rem;}
+.plan-card h3{margin-bottom:4px;}
+.plan-card .ps-sub{font-size:0.86rem;color:var(--text-muted);margin-bottom:18px;}
+.persona-grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+@media(max-width:580px){.persona-grid-5{grid-template-columns:1fr 1fr;}}
+.pgb{background:var(--light-bg);border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 7px;cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;transition:all 0.18s;}
+.pgb:hover{border-color:var(--magenta);}
+.pgb.sel{border-color:var(--magenta);background:#FFF5FB;}
+.pgb .pe{font-size:1.3rem;display:block;margin-bottom:4px;}
+.pgb .pn{font-size:0.7rem;font-weight:600;color:var(--charcoal);}
+.plan-input{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.88rem;margin-top:7px;background:var(--light-bg);color:var(--text-main);}
+.plan-input:focus{outline:none;border-color:var(--magenta);background:var(--white);}
+.plan-textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.88rem;resize:vertical;min-height:88px;margin-top:7px;background:var(--light-bg);color:var(--text-main);}
+.plan-textarea:focus{outline:none;border-color:var(--magenta);background:var(--white);}
+.form-row{margin-bottom:18px;}
+.form-lbl{font-size:0.86rem;font-weight:600;color:var(--charcoal);}
+.form-lbl span{font-weight:400;color:var(--text-muted);font-size:0.8rem;}
+
+/* self-check note */
+.self-check-note{background:var(--light-bg);border-radius:var(--radius-sm);padding:12px 16px;font-size:0.81rem;color:var(--text-muted);margin-top:12px;line-height:1.6;}
+.self-check-note strong{color:var(--charcoal);}
+
+/* accordion */
+.acc-toggle{width:100%;background:none;border:none;display:flex;justify-content:space-between;align-items:center;padding:11px 0;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.86rem;font-weight:600;color:var(--charcoal);border-bottom:1px solid var(--border);}
+.acc-toggle:hover{color:var(--magenta);}
+.acc-body{padding:14px 0 4px;display:none;}
+.acc-body.open{display:block;}
+.acc-body ul{padding-left:18px;}
+.acc-body li{font-size:0.86rem;color:var(--charcoal);margin-bottom:7px;line-height:1.6;}
+
+/* ── DEBRIEF / REPORT ── */
+.debrief-header{background:var(--charcoal);padding:48px 24px 36px;text-align:center;color:var(--white);}
+.debrief-header h1{color:var(--white);margin-bottom:10px;}
+.debrief-header p{color:rgba(255,255,255,0.68);max-width:500px;margin:0 auto;}
+.report-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:20px;}
+.report-card h3{margin-bottom:6px;}
+.report-sub{font-size:0.84rem;color:var(--text-muted);margin-bottom:18px;}
+
+/* persona result pills */
+.persona-results-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px;}
+@media(max-width:620px){.persona-results-row{grid-template-columns:1fr 1fr;}}
+.pr-card{text-align:center;background:var(--light-bg);border-radius:var(--radius-sm);padding:14px 8px;border-top:4px solid var(--border);}
+.pr-card.pr-best{border-top-color:var(--blue);}
+.pr-card.pr-close{border-top-color:var(--blue);}
+.pr-card.pr-miss{border-top-color:var(--blue);}
+.pr-emoji{font-size:1.6rem;margin-bottom:6px;}
+.pr-name{font-size:0.72rem;font-weight:600;color:var(--charcoal);margin-bottom:5px;}
+.pr-pill{font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:0.04em;}
+.pr-best .pr-pill{background:#E8EFF8;color:#005B9A;}
+.pr-close .pr-pill{background:#E8EFF8;color:#005B9A;}
+.pr-miss .pr-pill{background:#E8EFF8;color:#005B9A;}
+.pr-card.pr-skip .pr-pill{background:var(--mid-bg);color:var(--text-muted);}
+
+/* drift ranked list */
+.drift-ranked-list{display:flex;flex-direction:column;gap:10px;}
+.drift-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--light-bg);border-radius:var(--radius-sm);border:1px solid var(--border);}
+.drift-item.dominant{background:#FFF5FB;border-color:var(--magenta);}
+.drift-rank{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--text-muted);min-width:28px;flex-shrink:0;}
+.drift-item.dominant .drift-rank{color:var(--magenta);}
+.drift-info{flex:1;}
+.drift-name{font-size:0.9rem;font-weight:600;color:var(--charcoal);}
+.drift-desc{font-size:0.78rem;color:var(--text-muted);margin-top:2px;}
+.drift-bar-wrap{min-width:80px;}
+.drift-bar-bg{height:6px;background:var(--border);border-radius:3px;}
+.drift-bar-fill{height:100%;border-radius:3px;background:var(--charcoal);transition:width 0.7s 0.2s;}
+.drift-item.dominant .drift-bar-fill{background:var(--magenta);}
+.drift-count-badge{font-size:0.72rem;font-weight:700;min-width:22px;text-align:right;color:var(--text-muted);}
+.drift-item.dominant .drift-count-badge{color:var(--magenta);}
+
+/* mindset shift */
+.mindset-block{background:var(--charcoal);border-radius:var(--radius-sm);padding:18px 22px;margin-top:14px;}
+.mindset-block .mb-lbl{font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:10px;}
+.mindset-from-to{display:flex;align-items:center;gap:14px;}
+@media(max-width:500px){.mindset-from-to{flex-direction:column;gap:8px;}}
+.mb-from{font-size:0.83rem;color:rgba(255,255,255,0.65);font-style:italic;flex:1;}
+.mb-arrow{font-size:1.1rem;color:var(--magenta);flex-shrink:0;}
+.mb-to{font-size:0.83rem;color:var(--white);font-weight:500;flex:1;}
+
+/* plan summary in debrief */
+.plan-summary-grid{display:grid;gap:12px;}
+.ps-row{padding:12px 0;border-bottom:1px solid var(--border);display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:start;font-size:0.86rem;}
+.ps-row:last-child{border-bottom:none;}
+.ps-key{font-weight:600;color:var(--charcoal);}
+.ps-val{color:var(--text-muted);}
+.ps-val.filled{color:var(--charcoal);}
+
+/* notes in debrief */
+.notes-entry{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.notes-entry:last-child{border-bottom:none;}
+.notes-persona-label{font-size:0.78rem;font-weight:700;color:var(--magenta);margin-bottom:5px;}
+.notes-text{font-size:0.85rem;color:var(--charcoal);white-space:pre-wrap;line-height:1.6;}
+
+/* closing */
+.closing-quote{text-align:center;padding:36px 24px;border-top:1px solid var(--border);}
+.closing-quote blockquote{font-family:'DM Serif Display',serif;font-size:1.35rem;color:var(--charcoal);max-width:560px;margin:0 auto 14px;line-height:1.4;}
+.closing-quote cite{font-size:0.82rem;color:var(--text-muted);font-style:normal;}
+
+/* print button */
+.print-btn{background:var(--charcoal);color:var(--white);border:none;border-radius:var(--radius-sm);padding:12px 24px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;}
+.print-btn:hover{background:#3D3D40;}
+
+/* chips */
+.persona-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px;}
+.chip{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:0.8rem;font-weight:500;display:flex;align-items:center;gap:5px;}
+
+/* hint box */
+.hint{background:#EAF4FF;border:1px solid #BDD9F5;border-radius:var(--radius-sm);padding:10px 14px;font-size:0.8rem;color:#1A4E7C;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;}
+
+/* section divider */
+.sec-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
+
+/* timing table */
+.timing-table{background:var(--mid-bg);border-radius:var(--radius-sm);padding:15px 18px;}
+.timing-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:5px 0;font-size:0.82rem;border-bottom:1px solid var(--border);}
+.timing-row:last-child{border-bottom:none;padding-top:8px;font-weight:700;}
+.timing-row span:last-child{color:var(--magenta);font-weight:600;}
+.timing-row.total span:last-child{color:var(--magenta);}
+
+/* animations */
+.screen.active .container{animation:fadeUp 0.3s ease-out forwards;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   PRINT STYLES — 30-Day PDF
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media print {
+  /* hide everything except the print target */
+  body > *:not(#print-root){display:none !important;}
+  #print-root{display:block !important;}
+  .progress-bar,.nav-buttons,.btn-primary,.btn-secondary,.btn-ghost,.print-btn,.no-print{display:none !important;}
+
+  #print-root {
+    font-family: 'DM Sans', sans-serif;
+    color: #1A1A1A;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .print-page {
+    page-break-after: always;
+    padding: 32px 40px;
+    min-height: 100vh;
+  }
+  .print-page:last-child { page-break-after: avoid; }
+
+  .print-header {
+    border-bottom: 3px solid #C8006E;
+    padding-bottom: 14px;
+    margin-bottom: 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .print-title { font-family: 'DM Serif Display', serif; font-size: 1.6rem; color: #2C2C2E; }
+  .print-subtitle { font-size: 0.78rem; color: #6B6B6B; margin-top: 2px; }
+  .print-logo { font-size: 0.75rem; color: #6B6B6B; text-align: right; }
+  .print-logo strong { display: block; font-size: 0.82rem; color: #2C2C2E; }
+
+  .print-step { margin-bottom: 22px; }
+  .print-step-badge { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #C8006E; margin-bottom: 5px; }
+  .print-step h3 { font-family: 'DM Serif Display', serif; font-size: 1.05rem; color: #2C2C2E; margin-bottom: 3px; }
+  .print-step p { font-size: 0.83rem; color: #6B6B6B; margin-bottom: 10px; }
+
+  .print-persona-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .print-chip { border: 1px solid #D8D3CC; border-radius: 20px; padding: 3px 10px; font-size: 0.75rem; }
+  .print-chip.selected { border-color: #C8006E; background: #FFF5FB; font-weight: 600; }
+
+  .print-field { margin-bottom: 14px; }
+  .print-field-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #6B6B6B; margin-bottom: 4px; }
+  .print-field-value { font-size: 0.88rem; color: #1A1A1A; padding: 9px 12px; background: #F7F5F2; border-radius: 6px; min-height: 36px; border-left: 3px solid #D8D3CC; white-space: pre-wrap; }
+  .print-field-value.filled { border-left-color: #C8006E; background: white; }
+  .print-field-value.blank { color: #B0AAA4; font-style: italic; }
+
+  .print-drift { display: flex; flex-direction: column; gap: 7px; margin: 10px 0; }
+  .print-drift-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border: 1px solid #D8D3CC; border-radius: 6px; }
+  .print-drift-item.dom { border-color: #C8006E; background: #FFF5FB; }
+  .print-drift-rank { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: #B0AAA4; min-width: 20px; }
+  .print-drift-item.dom .print-drift-rank { color: #C8006E; }
+  .print-drift-name { font-size: 0.85rem; font-weight: 600; flex: 1; }
+  .print-drift-count { font-size: 0.75rem; font-weight: 700; color: #6B6B6B; }
+  .print-drift-item.dom .print-drift-count { color: #C8006E; }
+
+  .print-mindset { background: #2C2C2E; color: white; padding: 14px 18px; border-radius: 6px; margin-top: 10px; }
+  .print-mindset .pm-lbl { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; margin-bottom: 7px; }
+  .print-mindset .pm-row { display: flex; align-items: center; gap: 12px; }
+  .print-mindset .pm-from { font-size: 0.8rem; opacity: 0.65; font-style: italic; flex: 1; }
+  .print-mindset .pm-arrow { color: #C8006E; font-size: 1rem; }
+  .print-mindset .pm-to { font-size: 0.8rem; font-weight: 500; flex: 1; }
+
+  .print-impact-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .print-impact-col h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6B6B6B; margin-bottom: 7px; }
+  .print-impact-col ul { padding-left: 16px; }
+  .print-impact-col li { font-size: 0.8rem; color: #2C2C2E; margin-bottom: 5px; line-height: 1.5; }
+
+  .print-footer { border-top: 1px solid #D8D3CC; padding-top: 10px; margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.7rem; color: #B0AAA4; }
+}
+
+/* hide print root in screen mode */
+#print-root { display: none; }
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<nav class="progress-bar" id="progressBar">
+  <div class="progress-logo"><span class="dot"></span>Leading AI Conversations</div>
+  <div class="progress-steps" id="progressSteps"></div>
+  <span class="progress-label" id="progressLabel">Intro</span>
+  <span class="mode-badge" id="modeBadge" style="display:none"></span>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     STICKY FOOTER (all screens)
+══════════════════════════════════════════════ -->
+<div id="global-footer" style="position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--charcoal);color:white;text-align:center;padding:9px 24px;font-size:0.78rem;font-weight:500;letter-spacing:0.01em;display:flex;justify-content:center;align-items:center;gap:6px;">
+  <span>We are an AI-forward organization. Movement is expected.</span>
+  <span style="color:rgba(255,255,255,0.4);">·</span>
+  <span style="color:rgba(255,255,255,0.55);">Differentiation is in pacing — not direction.</span>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: HOME
+══════════════════════════════════════════════ -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-hero" style="background:#1D7279;padding:56px 24px 48px;text-align:center;overflow:hidden;position:relative;">
+
+    <!-- BTS color accent bars at top -->
+    <div style="position:absolute;top:0;left:0;right:0;height:4px;display:flex;">
+      <div style="flex:1;background:#CA1C68;"></div>
+      <div style="flex:1;background:rgba(255,255,255,0.4);"></div>
+      <div style="flex:1;background:#4C3480;"></div>
+      <div style="flex:1;background:#1C4C86;"></div>
+    </div>
+
+    <!-- Subtle background glow -->
+    <div style="position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(255,255,255,0.08) 0%,transparent 70%);pointer-events:none;"></div>
+
+    <div class="container" style="padding-top:0;padding-bottom:0;position:relative;">
+      <div style="display:inline-block;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.35);padding:4px 14px;border-radius:20px;margin-bottom:24px;">Manager Simulation</div>
+
+      <h1 style="color:white;margin-bottom:18px;font-size:clamp(2rem,5vw,3.2rem);">Every person on your team<br>has a different relationship with AI.</h1>
+
+      <p style="color:rgba(255,255,255,0.8);font-size:clamp(0.95rem,2vw,1.1rem);max-width:580px;margin:0 auto 36px;line-height:1.7;">This simulation puts you in the 1:1. Five real scenarios. Five different people. One question each time: <em style="color:white;">what do you actually say?</em></p>
+
+      <!-- Key details row -->
+      <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;">
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">⏱ ~2 hours total</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">🎭 5 simulated scenarios</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">📅 30-day action plan</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">🪞 Personal drift analysis</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="intro-body">
+    <div class="container">
+
+      <!-- MODE -->
+      <div style="background:var(--mid-bg);border-radius:var(--radius);padding:24px;margin:32px 0 24px;">
+        <h3 style="margin-bottom:6px;">How are you doing this today?</h3>
+        <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:0;">Either way, every individual responds on their own — answers are personal and private.</p>
+        <div class="mode-options">
+          <div class="mode-card selected" id="modeTeam" onclick="setMode('team')">
+            <div class="mc-icon">👥</div>
+            <div><h4>With a Team (2–5 people)</h4><p>Each person responds individually. After each persona, the group discusses together. ~10 min discussion per persona + 30 min plan.</p></div>
+          </div>
+          <div class="mode-card" id="modeSolo" onclick="setMode('solo')">
+            <div class="mc-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="7" r="4" fill="#2C2C2E"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#2C2C2E" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div><h4>On My Own</h4><p>Fully asynchronous. Self-paced reflection prompts replace group discussion. Same individual experience.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERSONAS -->
+      <h3 style="margin-bottom:10px;">Five AI Readiness Personas</h3>
+      <div class="persona-chips">
+        <div class="chip">🛡 Identity Defender</div>
+        <div class="chip">🔍 Responsible Skeptic</div>
+        <div class="chip">⚙️ Skill Purist</div>
+        <div class="chip">⏳ Overwhelmed Operator</div>
+        <div class="chip">⚡ Accelerator</div>
+      </div>
+      <div class="hint">💡 These are patterns — not labels. No one is only one persona. Use them as diagnostic lenses, not fixed identities.</div>
+
+      <!-- TIMING -->
+      <h3 style="margin-bottom:12px;">Recommended Agenda</h3>
+      <div class="timing-table" style="margin-bottom:32px;">
+        <div class="timing-row"><span>📋 Intro &amp; orientation</span><span>~10 min</span></div>
+        <div class="timing-row"><span>🎭 Each persona (read + respond + reveal)</span><span>~10 min</span></div>
+        <div class="timing-row"><span>💬 Team discussion per persona <em style="font-weight:400;color:var(--text-muted);">(team mode)</em></span><span>~10 min</span></div>
+        <div class="timing-row"><span>📊 Personal debrief</span><span>~5–10 min</span></div>
+        <div class="timing-row"><span>📅 30-Day Plan</span><span>~30 min</span></div>
+        <div class="timing-row total"><span>Total</span><span>~2 hours</span></div>
+      </div>
+
+      <div style="text-align:center;padding-bottom:60px;">
+        <button class="btn-primary" onclick="goToScreen('screen-assess')" style="font-size:1rem;padding:15px 36px;">
+          Let's Get Started →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: AI READINESS ASSESSMENT
+══════════════════════════════════════════════ -->
+<div class="screen" id="screen-assess">
+  <div class="intro-hero" style="padding-bottom:40px;">
+    <div class="container" style="padding-bottom:0;">
+      <div class="intro-label">Before You Begin</div>
+      <h1>Know Your Starting Point</h1>
+      <p>Understanding your own AI readiness — and your team's — makes every conversation in this simulation more meaningful.</p>
+    </div>
+  </div>
+
+  <div class="intro-body">
+    <div class="container">
+
+      <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;margin:32px 0 24px;border-top:5px solid var(--magenta);">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--magenta);margin-bottom:12px;">Recommended</div>
+        <h2 style="margin-bottom:12px;">Take the AI Readiness Assessment</h2>
+        <p style="font-size:0.92rem;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">The BTS AI Readiness Assessment helps you identify which of the five personas resonates most with where you are right now — and where your team members might be. It takes about 10–15 minutes and gives you a starting point to bring into this simulation. If you've already taken it, you're all set.</p>
+
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <a href="https://ebottiger.github.io/bts-ai-readiness-assessment-test/" target="_blank" rel="noopener" style="background:var(--magenta);color:white;border-radius:var(--radius-sm);padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;">
+            Take the Assessment ↗
+          </a>
+          <span style="font-size:0.82rem;color:var(--text-muted);">Opens in a new tab — come back when you're done.</span>
+        </div>
+      </div>
+
+      <div style="background:var(--mid-bg);border-radius:var(--radius-sm);padding:16px 20px;margin-bottom:32px;font-size:0.84rem;color:var(--charcoal);line-height:1.65;">
+        <strong>Haven't taken it yet?</strong> No problem — you can still move forward. The personas will reveal themselves through the simulation. The assessment just gives you a head start.
+      </div>
+
+      <div style="text-align:center;padding-bottom:60px;">
+        <button class="btn-primary" onclick="goToScreen('screen-framework')" style="font-size:1rem;padding:15px 36px;">
+          So what's next? Now that I know my persona — and my team's — what do I do? →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: CORE CONVERSATION FRAMEWORK
+══════════════════════════════════════════════ -->
+<div class="screen" id="screen-framework">
+  <div style="background:var(--charcoal);padding:48px 24px 40px;text-align:center;">
+    <div class="container" style="padding-top:0;padding-bottom:0;">
+      <div class="intro-label" style="border-color:rgba(200,0,110,0.5);">The Answer</div>
+      <h1 style="color:white;margin-bottom:14px;">The Core Conversation Framework</h1>
+      <p style="color:rgba(255,255,255,0.65);font-size:1rem;max-width:520px;margin:0 auto;">Four questions. In this order. Every time. The sequence is the skill — understanding before advising is what separates a good intention from a conversation that actually moves someone forward.</p>
+    </div>
+  </div>
+
+  <div style="background:var(--white);padding:0 0 80px;">
+    <div class="container">
+
+      <div style="display:flex;flex-direction:column;gap:0;margin-top:40px;">
+
+        <div style="display:flex;gap:0;align-items:stretch;">
+          <div style="width:4px;background:var(--magenta);border-radius:2px;flex-shrink:0;"></div>
+          <div style="flex:1;padding:32px 32px 40px;">
+            <div style="font-family:'DM Serif Display',serif;font-size:4rem;color:var(--magenta);line-height:1;margin-bottom:12px;">01</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,3vw,2rem);color:var(--charcoal);line-height:1.25;margin-bottom:14px;">Where are you with AI right now?</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);line-height:1.7;max-width:560px;">Surface their current relationship without judgment. Let them name it to tame it. Resist the urge to respond — just listen for what's real.</div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:0 32px;"></div>
+
+        <div style="display:flex;gap:0;align-items:stretch;">
+          <div style="width:4px;background:var(--blue);border-radius:2px;flex-shrink:0;"></div>
+          <div style="flex:1;padding:32px 32px 40px;">
+            <div style="font-family:'DM Serif Display',serif;font-size:4rem;color:var(--blue);line-height:1;margin-bottom:12px;">02</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,3vw,2rem);color:var(--charcoal);line-height:1.25;margin-bottom:14px;">What's underneath that?</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);line-height:1.7;max-width:560px;">Listen for whether this is about identity, ethics, mastery, capacity — or something else entirely. The answer shapes everything that follows. Stay curious longer than feels comfortable.</div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:0 32px;"></div>
+
+        <div style="display:flex;gap:0;align-items:stretch;">
+          <div style="width:4px;background:var(--emerald);border-radius:2px;flex-shrink:0;"></div>
+          <div style="flex:1;padding:32px 32px 40px;">
+            <div style="font-family:'DM Serif Display',serif;font-size:4rem;color:var(--emerald);line-height:1;margin-bottom:12px;">03</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,3vw,2rem);color:var(--charcoal);line-height:1.25;margin-bottom:14px;">What would feel like a safe next step?</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);line-height:1.7;max-width:560px;">Shrink experimentation to a manageable, readiness-aligned action. Small and real beats ambitious and avoided. The goal is movement — not a grand plan.</div>
+          </div>
+        </div>
+
+        <div style="height:1px;background:var(--border);margin:0 32px;"></div>
+
+        <div style="display:flex;gap:0;align-items:stretch;">
+          <div style="width:4px;background:var(--charcoal);border-radius:2px;flex-shrink:0;"></div>
+          <div style="flex:1;padding:32px 32px 40px;">
+            <div style="font-family:'DM Serif Display',serif;font-size:4rem;color:var(--charcoal);line-height:1;margin-bottom:12px;">04</div>
+            <div style="font-family:'DM Serif Display',serif;font-size:clamp(1.4rem,3vw,2rem);color:var(--charcoal);line-height:1.25;margin-bottom:14px;">Let's define one AI goal for this month.</div>
+            <div style="font-size:0.95rem;color:var(--text-muted);line-height:1.7;max-width:560px;">Translate the conversation into a specific, capability-building behavior with a clear timeframe. One goal. This month. Agreed together.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="background:var(--charcoal);color:white;border-radius:var(--radius);padding:24px 28px;margin-top:8px;text-align:center;">
+        <p style="font-size:0.92rem;font-weight:500;">The sequence matters — <em>understand before you advise.</em></p>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.55);margin-top:6px;">You'll see this framework come to life in every scenario that follows.</p>
+      </div>
+
+      <div style="text-align:center;margin-top:32px;padding-bottom:60px;">
+        <button class="btn-primary" onclick="startSimulation()" style="font-size:1rem;padding:15px 36px;">
+          Begin the Simulation →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PERSONA SCREENS (built by JS)
+══════════════════════════════════════════════ -->
+<div id="personaScreens"></div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: 30-DAY PLAN
+══════════════════════════════════════════════ -->
+<div class="screen" id="screen-plan">
+  <div class="plan-header">
+    <div class="container" style="padding-top:0;padding-bottom:0;">
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:7px;">Final Section</div>
+      <span style="font-size:2rem;display:block;margin-bottom:8px;">📅</span>
+      <h2>30-Day Manager Integration</h2>
+      <p>"AI adoption is not a single conversation. It is a leadership practice."</p>
+    </div>
+  </div>
+
+  <div style="background:white;padding:0 0 40px;">
+  <div class="container">
+
+    <!-- STEP 1 -->
+    <div class="plan-card" style="margin-top:28px;">
+      <div class="step-badge"><span class="sn">1</span> STEP 1</div>
+      <h3>Where do you see your team?</h3>
+      <p class="ps-sub">Which persona is most present on your team right now?</p>
+      <div class="persona-grid-5" id="planTeamGrid">
+        <button class="pgb" onclick="planSelectPersona('team','id')"><span class="pe">🛡</span><span class="pn">Identity Defender</span></button>
+        <button class="pgb" onclick="planSelectPersona('team','rs')"><span class="pe">🔍</span><span class="pn">Responsible Skeptic</span></button>
+        <button class="pgb" onclick="planSelectPersona('team','sp')"><span class="pe">⚙️</span><span class="pn">Skill Purist</span></button>
+        <button class="pgb" onclick="planSelectPersona('team','oo')"><span class="pe">⏳</span><span class="pn">Overwhelmed Operator</span></button>
+        <button class="pgb" onclick="planSelectPersona('team','acc')"><span class="pe">⚡</span><span class="pn">Accelerator</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="plan-card">
+      <div class="step-badge"><span class="sn">2</span> STEP 2</div>
+      <h3>Where do you see yourself?</h3>
+      <p class="ps-sub">Which persona shows up in <em>you</em> when it comes to AI adoption?</p>
+      <div class="persona-grid-5" id="planSelfGrid">
+        <button class="pgb" onclick="planSelectPersona('self','id')"><span class="pe">🛡</span><span class="pn">Identity Defender</span></button>
+        <button class="pgb" onclick="planSelectPersona('self','rs')"><span class="pe">🔍</span><span class="pn">Responsible Skeptic</span></button>
+        <button class="pgb" onclick="planSelectPersona('self','sp')"><span class="pe">⚙️</span><span class="pn">Skill Purist</span></button>
+        <button class="pgb" onclick="planSelectPersona('self','oo')"><span class="pe">⏳</span><span class="pn">Overwhelmed Operator</span></button>
+        <button class="pgb" onclick="planSelectPersona('self','acc')"><span class="pe">⚡</span><span class="pn">Accelerator</span></button>
+      </div>
+      <div class="self-check-note">💡 <strong>Why this matters:</strong> The most powerful signal you can send your team is your own visible experimentation. Your team is watching how you relate to AI — not just what you tell them about it.</div>
+    </div>
+
+    <!-- STEP 3 — two-column instinct comparison -->
+    <div class="plan-card">
+      <div class="step-badge"><span class="sn">3</span> STEP 3</div>
+      <h3 style="margin-bottom:4px;">Uncover Your Leadership Pattern</h3>
+      <p class="ps-sub">Your two lenses: what you checked as a first instinct vs. what you selected as your single answer. The gap between them is the data.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px;" id="planInstinctComparison">
+        <div class="ic-col">
+          <div class="ic-col-label"><div class="ic-dot" style="background:var(--magenta)"></div>My honest first instincts</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);">Complete the simulations to see.</p>
+        </div>
+        <div class="ic-col">
+          <div class="ic-col-label"><div class="ic-dot" style="background:var(--charcoal)"></div>When I had to commit to one answer</div>
+          <p style="font-size:0.82rem;color:var(--text-muted);">Complete the simulations to see.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 — mindset shift -->
+    <div class="plan-card">
+      <div class="step-badge"><span class="sn">4</span> STEP 4</div>
+      <h3 style="margin-bottom:4px;">My Mindset Shift</h3>
+      <p class="ps-sub">The shift most likely to change how you show up — based on your dominant drift.</p>
+      <div id="planMindsetShift"><p style="font-size:0.84rem;color:var(--text-muted);">Complete the persona simulations to see your personalized mindset shift.</p></div>
+    </div>
+
+    <!-- STEP 5 — commitment -->
+    <div class="plan-card">
+      <div class="step-badge"><span class="sn">5</span> STEP 5</div>
+      <h3>Make a Commitment</h3>
+      <p class="ps-sub">One conversation I will initiate in my next 1:1.</p>
+      <div class="form-row">
+        <div class="form-lbl">Team member name or role <span>(optional)</span></div>
+        <input class="plan-input" id="commitName" type="text" placeholder="e.g. Jordan — Senior PMC">
+      </div>
+      <div class="form-row">
+        <div class="form-lbl">What I want to surface or explore</div>
+        <textarea class="plan-textarea" id="commitSurface" placeholder="e.g. I want to understand what's really underneath their hesitation — is it about identity, or is it about workload?"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-lbl">One AI experiment to test this month</div>
+        <textarea class="plan-textarea" id="commitExperiment" placeholder="e.g. Use AI to draft the first version of the weekly status report, then review and elevate it together."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-lbl">How I will follow up <span>(date / method)</span></div>
+        <input class="plan-input" id="commitFollowUp" type="text" placeholder="e.g. Check in during our 1:1 on April 29th — ask what they tried and what surprised them.">
+      </div>
+    </div>
+
+    <!-- STEP 6 — impact -->
+    <div class="plan-card">
+      <div class="step-badge"><span class="sn">6</span> STEP 6</div>
+      <h3>The Impact I Hope to See</h3>
+      <p class="ps-sub">Check all that apply — the signals that will tell you this work is landing.</p>
+
+      <div style="font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--charcoal);margin:14px 0 10px;">With my team</div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="impactTeamChecks">
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="team-1"> <span>Team members initiating AI use without being prompted</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="team-2"> <span>Conversations shifting from "Should we use AI?" to "How should we use it?"</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="team-3"> <span>Manual steps being replaced with documented AI workflows</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="team-4"> <span>Quality discussions focused on judgment and synthesis — not just first drafts</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="team-5"> <span>Peers sharing AI practices across the team</span></label>
+      </div>
+
+      <div style="font-size:0.8rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--charcoal);margin:18px 0 10px;">For myself</div>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="impactSelfChecks">
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="self-1"> <span>I initiate AI conversations proactively — not only when someone raises it</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="self-2"> <span>I ask before I advise — I understand before I recommend</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="self-3"> <span>I move from reassurance to capability-building in how I respond</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="self-4"> <span>I follow up on agreed AI experiments rather than letting them fade</span></label>
+        <label class="impact-check-item"><input type="checkbox" class="impact-cb" value="self-5"> <span>I hold steady direction without escalating pressure</span></label>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="form-lbl">What does success look like for you personally in 30 days?</div>
+        <textarea class="plan-textarea" id="successNote" placeholder="Write your own definition of success here..."></textarea>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="goToScreen('screen-debrief')">Skip to Report ↓</button>
+      <button class="btn-primary" onclick="goToScreen('screen-debrief')">See My Full Report →</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SCREEN: DEBRIEF / REPORT
+══════════════════════════════════════════════ -->
+<div class="screen" id="screen-debrief">
+  <div class="debrief-header">
+    <h1>Your 30-Day Manager Integration</h1>
+    <p>Your personal reflection — instincts surfaced, patterns named, and one commitment made.</p>
+  </div>
+
+  <div style="background:var(--white);padding:0 0 40px;">
+  <div class="container">
+
+    <div id="debriefContent" style="margin-top:28px;">
+      <!-- JS populated -->
+    </div>
+
+    <div class="closing-quote">
+      <blockquote>"Every great AI conversation starts with one question — and one person who feels heard."</blockquote>
+      <cite>Leading AI Conversations, Manager Field Guide</cite>
+    </div>
+
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding-bottom:40px;" class="no-print">
+      <button class="print-btn" onclick="triggerPrint()">🖨 Print / Save as PDF</button>
+      <button class="btn-secondary" onclick="goToScreen('screen-plan')">← Edit My Plan</button>
+      <button class="btn-ghost" onclick="restartSim()">↺ Start Over</button>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PRINT ROOT (hidden in screen mode)
+══════════════════════════════════════════════ -->
+<div id="print-root"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════
+
+const personas = [
+  {
+    id: 'id', emoji: '🛡', name: 'Identity Defender',
+    tagline: '"If AI can do this, what makes me valuable?"',
+    tags: ['Identity','Professional self-concept','Career security'],
+
+    color:'#C8006E',
+    value:{ strengths:'Deep craft expertise · High standards · Institutional memory · Strong ownership of quality · Emotional investment in outcomes', become:'Guardians of meaningful work · Elevators of human judgment · Translators between AI output and business impact', tagline:'They help ensure AI enhances intelligence — not replaces it.' },    seeing: "A capable, committed contributor whose professional reputation is built on specific tasks and outputs. As AI accelerates parts of their work, they experience a quiet but real disruption. They are not resistant to technology — they are protecting meaning, value, and professional identity.",
+    hearing: ["I don't want to automate the parts of my role that make me valuable.","A lot of what I've been known for feels like it's shrinking.","I'm not sure where I fit if AI does this faster."],
+    scenario: {
+      name: "Kai", role: "PMO Team",
+      context: "Kai is a member of the PMO team known for operational precision. She keeps Salesforce entries clean, staffing coordinated across workstreams, dashboards accurate, timelines steady. Her reputation is built on reliability and control. With the new Run Simple strategy, some of the administrative and coordination work Kai historically handled is shrinking. At the same time, the organization is encouraging greater use of AI to support drafting timelines, synthesizing reports, and shaping communications.",
+      quote: "I'm trying to lean into AI, but I am struggling. With Run Simple, some of the work I used to own is going away. Now AI can draft timelines and summarize reports. A lot of what I have been known for feels like it is shrinking. I do not want to automate the parts of my role that made me valuable. I am not sure where that leaves me.",
+      question: "Based on this scenario, how do you approach the conversation?"
+    },
+    choices: [
+      { letter:'A', label:'Redirect to Immediate Deliverables', description:"Keep the conversation on current work to maintain stability. Acknowledge the concern briefly, then steer toward near-term priorities and what Kai can focus on right now.", rating:'drift', driftRow:3 },
+      { letter:'B', label:'Define How Her Role Could Evolve', description:"Step in to outline how Kai's role could evolve with AI — redefining her responsibilities and positioning her for what's coming. Give her a clear picture of what her future contribution looks like.", rating:'drift', driftRow:5 },
+      { letter:'C', label:'Anchor in Strategy First', description:"Emphasize company priorities and tell Kai this is where her value will be seen. Lean into the rationale behind the AI direction, reinforcing this is where the organization is headed.", rating:'drift', driftRow:1 },
+      { letter:'D', label:'Reassure and Maintain Morale', description:"Offer strong reassurance to reduce anxiety. Emphasize Kai's strong performance history, tell her she is valued, and keep the conversation centered on encouragement and confidence.", rating:'drift', driftRow:2 },
+      { letter:'E', label:'Ask What Matters — Then Separate Task from Value', description:"Start by asking: 'What feels most meaningful about your work right now?' Once you understand what she's protecting, help her see the difference between the tasks AI can absorb and the judgment, relationships, and instincts it can't touch.", rating:'best', driftRow:0 },
+      { letter:'F', label:'Share Data and Success Stories', description:"Share examples of colleagues who have adopted AI and grown their impact. Use evidence to counter the concern and build Kai's confidence that this change can work in her favor.", rating:'drift', driftRow:4 }
+    ],
+    leadershipMoves: [
+      { step:'1', say:'"Kai, what feels most meaningful about your work right now — the parts you\'d most want to protect?"', why:'Asking before advising slows the conversation down at the right moment. Kai needs to name what feels at risk before she can hear anything else. Understanding first is what earns the trust to move forward.' },
+      { step:'2', say:'"The parts of your role that are shrinking — those are tasks. The judgment you bring, the way you read a situation, the relationships you hold — AI can\'t absorb that. That\'s where your value actually lives."', why:'Separating task from value gives Kai a new frame. She\'s been protecting the task because she hasn\'t yet distinguished it from the value. Once she can see the difference, the threat changes shape.' },
+      { step:'3', say:'"What if AI handled the first pass on the timelines — and you focused your energy on the parts that actually need your read on the situation?"', why:'Reframing AI as clearing lower-value work repositions the change as addition, not subtraction. Her judgment moves to higher ground.' },
+      { step:'4', say:'"Let\'s pick one thing to try together. You design the experiment — I\'m here to support it."', why:'Co-creating the next step gives Kai ownership of the change. When she designs the experiment, the threat reduces because she\'s no longer a passenger.' }
+    ],
+    goals: { good:'Use AI to draft or summarize one recurring task. Reinvest the saved time into strengthening analysis, stakeholder relationships, or decision framing.', better:'Redesign one workflow: AI handles first draft, they elevate judgment, synthesis, or client impact.', stretch:'Track time saved over 30 days. Define one higher-level capability to build with that time.' },
+    discussion: {
+      team: ["Did the scenario feel realistic? Where have you seen this on your own team?","What is the cost of reassuring someone without engaging the real concern?","Which choice surprised you — and why?"],
+      solo: ["Which choice did you select first — and why did it feel natural?","What does this reveal about your default leadership move?","Think of someone on your team who might show up this way. What would you actually say to them?"]
+    }
+  },
+  {
+    id: 'rs', emoji: '🔍', name: 'Responsible Skeptic',
+    tagline: '"I need to know this is being used responsibly."',
+    tags: ['Ethics','Risk awareness','Governance sensitivity'],
+
+    color:'#005B9A',
+    value:{ strengths:'Critical thinking · Risk awareness · Governance sensitivity · Long-term perspective · Courage to question', become:'Internal ethics translators · Guardrail designers · Quality controllers of AI output · Voices that strengthen trust with clients and stakeholders', tagline:'They ensure AI strengthens reputation rather than undermines it.' },    seeing: "Thoughtful, principled, and asking the questions that need to be asked. Their hesitation is not about fear of change — it is about ethics, data integrity, quality control, or reputational risk. They are not anti-AI. They are pro-accountability, and that is an asset.",
+    hearing: ["What about the environmental impact of data centers?","AI is moving faster than regulation.","How do we know this is responsible?","What are the long-term consequences?"],
+    scenario: {
+      name: "Greer", role: "SET Team",
+      context: "Greer is a member of the SET team known for thoughtful, principled work. They have raised questions in team meetings about data privacy when using AI tools, and they recently forwarded an article to the team about AI and bias in hiring algorithms. They haven't refused to use AI — they've been piloting ChatGPT for some low-stakes drafting. But they slow down in conversations when governance feels unclear. Greer is respected by the team and their skepticism carries weight with others.",
+      quote: "I don't have a problem with AI in principle. I have a problem with AI when we don't know if we're using it responsibly. I've been reading about how organizations are getting this wrong — client data, model bias, hallucinations in deliverables. I want us to be better than that. How do I know we have the right guardrails in place?",
+      question: "What is the most effective leadership response to Greer's concern?"
+    },
+    choices: [
+      { letter:'A', label:'Reassure and Close the Concern', description:"Reassure Greer that leadership has considered the risks and policies are in place. Close the concern by asserting that the guardrails exist and the team should focus on execution.", rating:'drift', driftRow:2 },
+      { letter:'B', label:'Take It Seriously — Then Name a Specific Tension Together', description:"Say: 'That's a real question — let's think about it together.' Then name one tension explicitly: 'You're right that data privacy is still evolving — here's what we know.' Don't bypass it, move through it with them.", rating:'best', driftRow:0 },
+      { letter:'C', label:'Redirect Toward Deliverables', description:"Acknowledge the concern briefly, then steer the conversation back toward immediate work and near-term priorities. Signal that the broader governance questions are being handled at a leadership level.", rating:'drift', driftRow:3 },
+      { letter:'D', label:'Take Over Defining Responsible Use', description:"Step in to define what responsible AI use looks like for the team so everyone can move forward with clarity. Build the guidelines yourself and share them as the new standard.", rating:'drift', driftRow:5 },
+      { letter:'E', label:'Present Research to Counter the Concern', description:"Share articles, internal policies, or statistics that address the concerns Greer raised. Walk them through the data to counterbalance their skepticism and build confidence in moving forward.", rating:'drift', driftRow:4 },
+      { letter:'F', label:'Override with Urgency', description:"Emphasize business urgency and competitive pressure to encourage alignment. Acknowledge the concern briefly, then pivot to why the team needs to move faster.", rating:'drift', driftRow:1 }
+    ],
+    leadershipMoves: [
+      { step:'1', say:'"Greer, that\'s a real question — I don\'t want to redirect away from it. Let\'s think about it together."', why:'Not redirecting immediately is the move. Greer\'s concern is principled — bypassing it signals that governance questions aren\'t welcome. Taking it seriously builds the credibility to lead the conversation somewhere useful.' },
+      { step:'2', say:'"You\'re right that data privacy in AI is still evolving. Here\'s what we know right now, and here\'s where I think we still have open questions."', why:'Naming one tension explicitly rather than offering false certainty is what earns trust. Greer isn\'t looking for reassurance — they\'re looking for honest engagement. Acknowledging the complexity is more credible than closing it down.' },
+      { step:'3', say:'"For the specific work we\'re doing — what would responsible use actually look like to you? What would you need to see to feel confident?"', why:'Asking what responsible use looks like redirects toward co-creation. Greer\'s skepticism becomes a governance contribution rather than a blocker.' },
+      { step:'4', say:'"Would you be willing to draft a responsible-use guideline for the team? Your thinking on this is exactly what we need."', why:'Inviting Greer to be the architect turns their critical thinking into a leadership role. Skepticism channeled is one of the most valuable assets on a team navigating new territory.' }
+    ],
+    goals: { good:'Define clear guidelines for which client data types are safe to use with AI tools — and run one experiment within those guardrails.', better:'Co-create a team "responsible use checklist" for AI outputs before client delivery. Apply it to one real deliverable.', stretch:'Lead a governance conversation with the team: present one AI risk identified and one mitigation designed. Position them as an internal ethics translator.' },
+    discussion: {
+      team: ["What is the difference between a Responsible Skeptic and someone who is resistant?","How do you stay credible when governance genuinely is still evolving?","What happens to the rest of the team when skeptics are dismissed vs. channeled?","When is 'we have policies in place' actually enough — and when isn't it?"],
+      solo: ["What is your instinct when someone raises governance concerns in a team meeting?","Have you ever over-reassured someone about AI risk? What happened?","How could you leverage the Responsible Skeptic on your team as an asset rather than a friction point?"]
+    }
+  },
+  {
+    id: 'sp', emoji: '⚙️', name: 'Skill Purist',
+    tagline: '"I don\'t want AI thinking for me."',
+    tags: ['Craft pride','Cognitive dependency concern','Mastery'],
+
+    color:'#007A5E',
+    value:{ strengths:'Depth of expertise · High standards · Analytical rigor · Craft discipline · Commitment to quality', become:'Quality elevators · Human judgment amplifiers · Refinement experts · Standards setters for AI-assisted work', tagline:'When engaged well, they raise the bar for what AI-assisted work can be.' },    seeing: "They are not afraid of AI. They are protective of expertise. Their concern is that AI will erode the deep thinking, judgment, and craft that defines their professional identity. They want to stay sharp — and they worry automation trades depth for speed.",
+    hearing: ["If I let AI draft this, I'll stop knowing how to do it myself.","The quality of AI thinking isn't the same as mine.","I don't want to lose the skill by outsourcing the thinking.","How do I stay sharp if I stop practicing the hard parts?"],
+    scenario: {
+      name: "Jason", role: "Digital Team",
+      context: "Jason is a member of the Digital team and one of the strongest designers on your team. His work is consistently praised by clients for its nuance, depth, and craft. He has been using AI to help with some administrative tasks but refuses to use it for design work. When the topic comes up, he says AI-generated content is generic and that the value he brings is in the quality of his thinking — not the speed of his output. He has not blocked anyone else from using AI, but he is vocal about his own position and his stance is influencing newer team members.",
+      quote: "I know AI is fast. I know it can generate a first draft in seconds. But my value isn't speed — it's judgment. I spent years developing an instinct for what works in a room, what a client needs before they know it themselves. I don't want to outsource that thinking to a model trained on the internet. If I stop doing the hard parts, I stop knowing how to do them.",
+      question: "How do you respond to Jason?"
+    },
+    choices: [
+      { letter:'A', label:'Reassure Him His Skills Are Still Valued', description:"Acknowledge his concern and reassure Jason that his expertise isn't going anywhere. Tell him AI is just a tool and that real skill will always matter — he doesn't need to worry.", rating:'drift', driftRow:3 },
+      { letter:'B', label:'Reframe AI as Just a Tool — It Won\'t Replace Thinking', description:"Make the case that AI doesn't actually affect Jason's thinking process — it's just a faster way to get to a first draft. Separate the tool from the skill to reduce the perceived threat.", rating:'drift', driftRow:4 },
+      { letter:'C', label:'Share Examples of How Others Are Using AI', description:"Tell Jason about colleagues who are using AI to do more in less time. Use peer examples to show what's possible and make adoption feel more normal and accessible.", rating:'drift', driftRow:2 },
+      { letter:'D', label:'Emphasize Time Savings and Efficiency', description:"Make the case for speed and productivity. Share examples of time saved by peers who use AI for design work. Frame adoption as a competitive advantage.", rating:'drift', driftRow:1 },
+      { letter:'E', label:'Suggest a Trial Period to Prove AI Quality', description:"Propose a structured trial: Jason uses AI for one project and evaluates the outputs himself. Frame it as an experiment he controls — if the quality isn't there, the data speaks for itself.", rating:'drift', driftRow:5 },
+      { letter:'F', label:'Validate the Craft — Then Separate Draft from Judgment', description:"Say directly: 'You're right that expertise matters — and that's exactly why this conversation is worth having.' Then reframe: AI drafts. Jason evaluates, critiques, refines, and elevates. His judgment is the product — not the prompt.", rating:'best', driftRow:0 }
+    ],
+    leadershipMoves: [
+      { step:'1', say:'"Jason, you\'re right — expertise matters. That\'s exactly why this conversation is worth having, not skipping."', why:'Validating the craft concern directly prevents the conversation from becoming adversarial. Jason isn\'t wrong that judgment matters. Agreeing with that first opens the door to reframing what AI\'s role actually is.' },
+      { step:'2', say:'"AI drafts. You evaluate, critique, refine, and elevate. Your judgment is the product — not the prompt. The final output is still entirely yours."', why:'Separating first draft from final judgment reframes the threat. Jason has been imagining AI replacing his thinking. This frame positions him as the filter — which is exactly where his expertise lives.' },
+      { step:'3', say:'"What would excellent AI-assisted design work look like in your role — by your standards? You set the bar."', why:'Inviting Jason to define excellence channels his craft pride into design rather than resistance. He owns the quality standard — which dramatically reduces the threat.' },
+      { step:'4', say:'"What if you used AI to pressure-test your own reasoning — asked it to argue the other side before you finalized your thinking?"', why:'Framing AI as a thinking partner rather than a drafting tool speaks directly to Jason\'s fear of cognitive atrophy. Using it to sharpen, not shortcut, is what makes this feel like depth, not dependency.' }
+    ],
+    goals: { good:'Use AI to generate multiple first-draft options — then critique, refine, and elevate them using personal expertise.', better:'Use AI to pressure-test reasoning: ask it to challenge assumptions or present counterarguments before finalizing work.', stretch:'Define a personal standard for AI-assisted excellence in their function. Build a workflow where AI accelerates iteration and human judgment determines final output.' },
+    discussion: {
+      team: ["What is the legitimate concern inside 'I don't want AI thinking for me'?","How do you honor craft expertise while still moving someone forward?","What is the difference between Jason's concern and someone who is simply avoiding?","How does her stance influence newer team members — and what does that mean for your role as manager?"],
+      solo: ["Do you have a version of the Skill Purist concern yourself? What is it?","How do you hold someone accountable for movement while still respecting their expertise?","Which response surprised you — and why?"]
+    }
+  },
+  {
+    id: 'oo', emoji: '⏳', name: 'Overwhelmed Operator',
+    tagline: '"I barely have time to do my job — I don\'t have time to learn this."',
+    tags: ['Capacity-constrained','Change fatigue','Execution-focused'],
+
+    color:'#7B5EA7',
+    value:{ strengths:'Reliability · Consistency · Strong execution · Institutional continuity · Accountability under pressure', become:'Efficiency multipliers · Workflow simplifiers · Process stabilizers · Role models for sustainable adoption', tagline:'When supported well, they model what steady, sustainable AI adoption looks like.' },    seeing: "Not philosophically opposed to AI. Capacity-constrained. They are balancing deadlines, stakeholder demands, and existing change initiatives. AI feels like one more expectation on an already full plate. They are not resistant — they are saturated. They need relief before they can experiment.",
+    hearing: ["I'll get to it when things slow down.","I don't even know where to start.","I don't have time to experiment.","We've had so many changes already."],
+    scenario: {
+      name: "Devon", role: "PRO Team",
+      context: "Devon is a member of the PRO team responsible for consultant resourcing — matching consultants to projects, tracking utilization, managing staffing requests, and keeping assignment data current across systems. His work is high-volume and deadline-driven: staffing requests come in constantly, and the cost of a missed or late assignment is visible. He is thorough and reliable, but in your last few check-ins he has been quieter than usual. He attended one AI orientation session last month but hasn't mentioned it since. When you bring it up in a 1:1, he exhales before he answers.",
+      quote: "I know it's something I should look at. But right now I'm processing staffing requests, chasing down utilization data, and updating assignments across three systems — and that's just this week. AI feels like one more thing to figure out on top of everything else. I'm not opposed to it. I genuinely just don't have the space to take something new on right now.",
+      question: "What is the most effective leadership move with Devon?"
+    },
+    choices: [
+      { letter:'A', label:'Reassure and Revisit Later', description:"Acknowledge how full his plate is and agree to revisit the AI conversation when his current tracks wind down. Let him know you understand the pressure and aren't adding to it.", rating:'drift', driftRow:2 },
+      { letter:'B', label:'Outline a Structured Learning Plan', description:"Build Devon a step-by-step plan to develop AI skills over the next four weeks. Set clear milestones and check-in points so he has a manageable path forward.", rating:'drift', driftRow:5 },
+      { letter:'C', label:'Acknowledge the Reality — Then Remove One Task', description:"Start with: 'I hear you — you're not wrong that things are full right now. I'm not here to add to the pile.' Then: 'What's one task this week that costs you the most time? Let's see if AI can absorb it.'", rating:'best', driftRow:0 },
+      { letter:'D', label:'Acknowledge and Revisit When Things Settle', description:"Acknowledge how busy Devon is and say you'll revisit AI when his current program tracks wind down. Signal that you're not adding to his plate right now.", rating:'drift', driftRow:4 },
+      { letter:'E', label:'Motivate with the Bigger Picture', description:"Explain why AI matters for the team's future. Share the strategic direction and help Devon see the opportunity he's missing. Use the broader context to inspire urgency and engagement.", rating:'drift', driftRow:1 },
+      { letter:'F', label:'Share a Resource List to Help Him Get Going', description:"Send Devon a curated prompt library or a short list of AI tools that would be easy to pick up. Give him something concrete to start with on his own time.", rating:'drift', driftRow:3 }
+    ],
+    leadershipMoves: [
+      { step:'1', say:'"Devon, I hear you — processing staffing requests, chasing utilization data, updating assignments across systems. That\'s a real load. I\'m not here to add to it."', why:'Validation before direction is the move. Devon needs to know you see the specifics of his work — not a generic version of being busy. Naming what he\'s actually carrying is what makes the door open.' },
+      { step:'2', say:'"What\'s the one thing in your resourcing workflow this week that costs you the most time? Just the most time. Let\'s see if AI can take that step off your plate."', why:'The ask must remove work, not add to it. For Devon, AI isn\'t a learning project — it\'s a potential hour back on something he does repeatedly. One task. This week. Containment is the point.' },
+      { step:'3', say:'"One task. This week. That\'s the whole ask — nothing else."', why:'Shrinking the experiment removes the activation energy. Devon\'s barrier isn\'t motivation — it\'s capacity. The smaller the ask, the more likely something actually gets tried.' },
+      { step:'4', say:'"The risk of waiting is that the volume doesn\'t go down — it goes up. One small swap now is how relief actually starts."', why:'Naming the long-term cost gently reframes inaction. For someone in a high-volume role like Devon\'s, waiting for quiet is often waiting forever — and he deserves to see that clearly.' }
+    ],
+    goals: { good:'Use AI to draft one recurring staffing update, utilization summary, or assignment communication this week. One task. This week.', better:'Identify one manual data-gathering or reporting step in the resourcing workflow and replace it with AI — measure time saved over two weeks.', stretch:'Redesign one recurring resourcing process so AI handles the preparation and first-pass work, freeing 30–60 minutes per week for higher-judgment decisions.' },
+    discussion: {
+      team: ["What is the difference between 'overwhelmed' and 'resistant'? Does it change your leadership response?","What does it mean to add a learning requirement without removing work?","When does 'we'll revisit when things slow down' actually help — and when does it stall progress?","What is one task in your own work that AI could absorb right now?"],
+      solo: ["Have you ever been the Overwhelmed Operator? What would have actually helped?","What does your instinct say when someone says 'I'll get to it when things settle'?","What is the smallest experiment you could propose to Devon that would actually relieve pressure rather than add to it?"]
+    }
+  },
+  {
+    id: 'acc', emoji: '⚡', name: 'Accelerator',
+    tagline: '"Why aren\'t we doing more of this?"',
+    tags: ['Early adopter','Momentum-driven','Needs channeling'],
+
+    color:'#D4670A',
+    value:{ strengths:'Speed · Technical fluency · Creative experimentation · Energy · Early pattern recognition', become:'Pilot designers · Capability multipliers · Internal trainers · System optimizers', tagline:'When channeled well, they accelerate the whole team — not just themselves.' },    seeing: "Energized by AI. They experiment early, build workflows quickly, and may already be creating custom GPTs or automations independently. They see possibility everywhere. They are not reckless — they are momentum-driven. The leadership challenge is not igniting them. It is channeling them.",
+    hearing: ["I automated that already.","We should be using this for everything.","There's a faster way to do this.","Why are we still doing this manually?"],
+    scenario: {
+      name: "Brandi", role: "Help Desk Team",
+      context: "Brandi is a member of the Help Desk team who joined eight months ago. Her role involves triaging and resolving support tickets, partnering with program teams to quickly get team members up to speed on program details, and communicating across regions to keep stakeholders aligned. She moves fast, picks up context quickly, and has already started using AI to draft ticket responses, summarize program updates for regional handoffs, and build her own prompt library for common escalation types. She sends the team Slack messages with shortcuts she's discovered almost daily. Her energy is contagious — but two colleagues have mentioned feeling behind, and she recently sent an AI-drafted regional update without flagging it had been generated, which caused confusion when a recipient pushed back on a detail she hadn't verified.",
+      quote: "I don't understand why we're still writing these responses from scratch every time. I've already templated the top fifteen ticket types using AI and it cut my response time in half. I built a regional update summary tool last week — took me two hours, saves me forty-five minutes every time I use it. I keep sharing this stuff and people aren't picking it up. We should be all in on this. The tickets don't slow down.",
+      question: "How do you lead this conversation with Brandi?"
+    },
+    choices: [
+      { letter:'A', label:'Affirm the Initiative — Then Tie It to Measurable Impact', description:"Acknowledge her momentum genuinely: 'What you've built is real — and I want to make sure it lands on the team.' Then ask: 'What measurable result improved?' Shift from building fast to demonstrating impact the team can see and adopt.", rating:'best', driftRow:0 },
+      { letter:'B', label:'Reinforce Speed and Encourage More', description:"Tell Brandi her momentum is exactly what the team needs. Express enthusiasm for what she's built and encourage her to keep pushing. Use her as a model for the rest of the team to aspire to.", rating:'drift', driftRow:1 },
+      { letter:'C', label:'Express Strong Enthusiasm to Keep the Energy Up', description:"Match her excitement. Tell her the team needs more of this energy and that her initiative is exactly the kind of thing that will move the organization forward.", rating:'drift', driftRow:2 },
+      { letter:'D', label:'Use Her as an Example to Motivate Others', description:"Recognize Brandi's work publicly and use it to inspire the rest of the team. Position her as the model for what AI adoption can look like at its best.", rating:'drift', driftRow:4 },
+      { letter:'E', label:'Let Her Operate Independently', description:"Recognize that Brandi is self-directed and capable. Give her space to keep building. Trust that her energy will lift others organically and that constraining her pace would dampen the innovation.", rating:'drift', driftRow:3 },
+      { letter:'F', label:'Step In to Refine and Expand Her Ideas', description:"Engage with what Brandi has built and add your own thinking to make it stronger. Help her shape the workflows into something more polished and present it together as a team capability.", rating:'drift', driftRow:5 }
+    ],
+    leadershipMoves: [
+      { step:'1', say:'"Brandi, the toolkit you\'ve built is real — the ticket templates, the regional summary tool. I want to make sure it actually lands on the team, not just in your workflow."', why:'Affirming the initiative before redirecting is what keeps Brandi open. She needs to know her speed is valued — then she can hear where to aim it. Leading with the governance issue without acknowledging what she built reads as a shutdown.' },
+      { step:'2', say:'"Can I ask — on the ticket response templates, what\'s the actual result? Time saved, fewer escalations, faster resolution? I want to help you make the case so the team can actually adopt it."', why:'Shifting from building to demonstrating impact is the move. Brandi has been optimizing her own workflow — this question channels her energy toward the evidence that will scale her work to the whole Help Desk.' },
+      { step:'3', say:'"One thing we need to anchor: anything AI-drafted that goes to a stakeholder — especially across regions — needs a human check before it sends. Not because we don\'t trust the tool, but because we need to be able to stand behind every detail. That regional update is a good example of why."', why:'Naming the governance boundary clearly and specifically protects Brandi as much as the team. In a cross-regional, client-adjacent role, an unverified detail in an AI draft can erode trust fast — and that consequence lands on her.' },
+      { step:'4', say:'"Here\'s the challenge I\'d give you: pick someone on the team who\'s still writing responses from scratch. Sit with them for an hour and co-design something they\'ll actually use. That\'s how your work becomes team capability."', why:'Channeling outward turns solo momentum into shared progress. This gives Brandi a challenge worthy of her energy — and addresses the friction her pace is creating without making it a disciplinary conversation.' }
+    ],
+    goals: { good:'Document two or three of the most-used ticket response templates and share them with the team in a brief walkthrough — with a note on when human review is needed before sending.', better:'Measure ticket resolution time or regional update turnaround over 30 days using AI-assisted workflows and share the data with the team.', stretch:'Partner with one team member who isn\'t yet using AI and co-design a workflow for their most frequent task — something replicable across the Help Desk.' },
+    discussion: {
+      team: ["What is the difference between channeling an Accelerator and constraining them?","What are the risks of letting an Accelerator operate without governance anchors?","How do you recognize an Accelerator's contribution without creating implicit pressure on others?","When is 'move fast and share everything' a feature — and when is it a problem?"],
+      solo: ["Do you have an Accelerator on your team right now? How are you managing their energy?","What would you say to Brandi about the unverified regional update without shutting down her momentum?","When have you been the Accelerator — and what kind of leadership helped or hurt?"]
+    }
+  }
+];
+
+const driftPatterns = [
+  { row:1, name:'Push Too Fast', desc:'Lead with strategy and urgency before understanding where they are', from:'I lead with strategy and urgency before understanding where they are.', to:'I slow down deliberately — the conversation that feels slower often moves people further and faster.' },
+  { row:2, name:'Over-Reassure', desc:"Reach for encouragement before sitting with the real concern", from:"I reach for encouragement before I've sat with the real concern.", to:"I sit with the concern long enough to understand it — then I build capability, not comfort." },
+  { row:3, name:'Avoid the Topic', desc:'Redirect to deliverables when the conversation gets uncomfortable', from:'I redirect to deliverables when the conversation gets uncomfortable.', to:'I name the tension directly — discomfort in the conversation is better than silence that stalls progress.' },
+  { row:4, name:'Debate Instead of Explore', desc:'Counter concerns with data when curiosity would serve better', from:"I counter concerns with data when curiosity would serve better.", to:"I shift from advocate to learner — I'm not here to win the point, I'm here to understand what's actually in the way." },
+  { row:5, name:'Rescue', desc:"Solve before they've fully articulated the problem", from:"I solve before they've fully articulated the problem.", to:"I wait until they've named it — their ownership of the solution is what makes it stick." }
+];
+
+const personaNames = { id:'Identity Defender', rs:'Responsible Skeptic', sp:'Skill Purist', oo:'Overwhelmed Operator', acc:'Accelerator' };
+const personaEmojis = { id:'🛡', rs:'🔍', sp:'⚙️', oo:'⏳', acc:'⚡' };
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+
+let S = {
+  mode: 'team',
+  selections: {},      // personaId -> { letter, driftRow, rating }
+  revealed: {},        // personaId -> bool
+  driftCounts: {1:0,2:0,3:0,4:0,5:0},   // from simulation choices
+  instinctCounts: {1:0,2:0,3:0,4:0,5:0}, // from self-check checkboxes
+  instincts: {},       // personaId -> Set of driftRows checked
+  notes: {},           // personaId -> string
+  plan: { team:null, self:null },
+  currentScreen: 'screen-intro'
+};
+
+const SCREENS = ['screen-intro', 'screen-assess', 'screen-framework', ...personas.map(p=>`screen-${p.id}`), 'screen-plan', 'screen-debrief'];
+
+// ══════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  buildProgressSteps();
+  buildPersonaScreens();
+  updateProgress();
+});
+
+// ══════════════════════════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════════════════════════
+function buildProgressSteps() {
+  const el = document.getElementById('progressSteps');
+  el.innerHTML = SCREENS.map((_,i) => `<div class="progress-step" id="ps-${i}"></div>`).join('');
+}
+
+function updateProgress() {
+  const idx = SCREENS.indexOf(S.currentScreen);
+  const labels = ['Home', 'Assessment', 'Framework', ...personas.map(p=>p.name), '30-Day Plan', 'Report'];
+  document.getElementById('progressLabel').textContent = labels[idx] || '';
+  const badge = document.getElementById('modeBadge');
+  if (!['screen-intro','screen-assess','screen-framework'].includes(S.currentScreen)) {
+    badge.style.display = '';
+    badge.textContent = S.mode === 'solo' ? 'Solo' : 'Team';
+    badge.className = 'mode-badge ' + S.mode;
+  } else {
+    badge.style.display = 'none';
+  }
+  SCREENS.forEach((_,i) => {
+    const el = document.getElementById(`ps-${i}`);
+    if (!el) return;
+    el.className = 'progress-step' + (i < idx ? ' done' : i === idx ? ' active' : '');
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════
+function goToScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('active');
+  S.currentScreen = id;
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (id === 'screen-plan') setupPlanScreen();
+  if (id === 'screen-debrief') setupDebrief();
+}
+
+function goPrev(currentId) {
+  const i = SCREENS.indexOf(currentId);
+  if (i > 0) goToScreen(SCREENS[i-1]);
+}
+function goNext(currentId) {
+  const i = SCREENS.indexOf(currentId);
+  if (i < SCREENS.length-1) goToScreen(SCREENS[i+1]);
+}
+
+// ══════════════════════════════════════════════════════════
+// MODE
+// ══════════════════════════════════════════════════════════
+function setMode(m) {
+  S.mode = m;
+  document.getElementById('modeTeam').className = 'mode-card' + (m==='team'?' selected':'');
+  document.getElementById('modeSolo').className = 'mode-card' + (m==='solo'?' selected':'');
+}
+
+// ══════════════════════════════════════════════════════════
+// START
+// ══════════════════════════════════════════════════════════
+function startSimulation() {
+  buildPersonaScreens();
+  goToScreen(`screen-${personas[0].id}`);
+}
+
+// ══════════════════════════════════════════════════════════
+// BUILD PERSONA SCREENS
+// ══════════════════════════════════════════════════════════
+function buildPersonaScreens() {
+  document.getElementById('personaScreens').innerHTML =
+    personas.map((p,i) => buildPersonaScreen(p,i)).join('');
+}
+
+function buildPersonaScreen(p, idx) {
+  const isSolo = S.mode === 'solo';
+  const isLast = idx === personas.length - 1;
+
+  const choicesHTML = p.choices.map(c => `
+    <div class="combined-row" id="choice-${p.id}-${c.letter}">
+      <div class="instinct-col" onclick="toggleInstinct('${p.id}','${c.letter}',${c.driftRow})" title="Check if this feels like a first instinct">
+        <div class="instinct-col-box"><span class="instinct-col-check">✓</span></div>
+      </div>
+      <div class="select-col" onclick="selectChoice('${p.id}','${c.letter}',${c.driftRow},'${c.rating}')">
+        <div class="c-letter">${c.letter}</div>
+        <div class="c-body"><strong>${c.label}</strong><p>${c.description}</p></div>
+        <span class="c-badge">${c.rating==='best'?'The Leadership Move':c.rating==='ok'?'Partially Effective':'Drift Pattern'}</span>
+      </div>
+    </div>`).join('');
+
+  const dqs = isSolo ? p.discussion.solo : p.discussion.team;
+  const dlabel = isSolo ? '◆ Reflection Prompts' : '💬 Team Discussion — recommended 10 minutes';
+  const dcolor = isSolo ? 'solo-color' : 'team-color';
+  const dbg = isSolo ? 'background:#FFF8F0;border:1px solid #F5D9C0;' : 'background:#EAF4FF;border:1px solid #BDD9F5;';
+
+  return `
+<div class="screen" id="screen-${p.id}">
+  <div class="persona-header">
+    <div class="container" style="padding-top:0;padding-bottom:0;">
+      <div class="p-num">Persona ${idx+1} of ${personas.length}</div>
+      <span class="p-emoji">${p.emoji}</span>
+      <h2>${p.name}</h2>
+      <p class="p-tagline">${p.tagline}</p>
+      <div class="p-tags">${p.tags.map(t=>`<span class="p-tag">${t}</span>`).join('')}</div>
+    </div>
+  </div>
+
+  <div style="background:var(--white);padding:0 0 40px;">
+  <div class="container">
+
+    <div style="margin-top:22px;">
+      <button class="acc-toggle" onclick="toggleAcc('ctx-${p.id}')">What you're seeing with this persona <span id="ctx-${p.id}-arrow">▼</span></button>
+      <div class="acc-body" id="ctx-${p.id}">
+        <p style="font-size:0.86rem;color:var(--charcoal);margin-bottom:10px;">${p.seeing}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;">${p.hearing.map(h=>`<div style="background:var(--light-bg);border-radius:20px;padding:5px 13px;font-size:0.78rem;font-style:italic;color:var(--charcoal);">"${h}"</div>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="scenario-card" style="margin-top:18px;">
+      <div class="scene-label">📋 Scenario — ${p.scenario.name}, ${p.scenario.role}</div>
+      <h3 style="margin-bottom:10px;">The Situation</h3>
+      <p class="scene-ctx">${p.scenario.context}</p>
+      <div class="scene-quote">${p.scenario.quote}</div>
+      <p style="font-size:0.84rem;font-weight:600;color:var(--charcoal);margin-top:7px;">${p.scenario.question}</p>
+    </div>
+
+    ${!isSolo ? `
+    <div style="background:#F0F4FA;border:1px solid #C7D8F0;border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;">
+      <span style="font-size:1.1rem;flex-shrink:0;">💬</span>
+      <div>
+        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;">Team Discussion — recommended 10 minutes</div>
+        <div style="font-size:0.84rem;color:var(--charcoal);line-height:1.6;">Start by sharing gut instincts before reading the options. Then read through together. Then have a final discussion and each person selects individually.</div>
+      </div>
+    </div>` : ''}
+
+    <div class="decision-card">
+      <div style="margin-bottom:20px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:14px;">
+          <div style="padding:12px 14px;background:#FFF5FB;border-right:1px solid var(--border);">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--magenta);margin-bottom:4px;">Step 1</div>
+            <div style="font-size:0.82rem;color:var(--charcoal);line-height:1.5;font-weight:500;">Check all boxes that feel like a first instinct</div>
+          </div>
+          <div style="padding:12px 14px;background:var(--light-bg);border-right:1px solid var(--border);">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--charcoal);margin-bottom:4px;">Step 2</div>
+            <div style="font-size:0.82rem;color:var(--charcoal);line-height:1.5;font-weight:500;">${isSolo ? 'Select one option you believe is most effective' : 'Select one option individually — after team discussion'}</div>
+          </div>
+          <div style="padding:12px 14px;background:var(--light-bg);">
+            <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--charcoal);margin-bottom:4px;">Step 3</div>
+            <div style="font-size:0.82rem;color:var(--charcoal);line-height:1.5;font-weight:500;">Click <em>See the Analysis</em> to submit your answer</div>
+          </div>
+        </div>
+      </div>
+      <div class="combined-choices" id="choices-${p.id}">${choicesHTML}</div>
+      <div class="reveal-controls" id="revealCtrl-${p.id}">
+        <button class="btn-primary" onclick="revealAnswers('${p.id}')" id="revealBtn-${p.id}" disabled>See the Analysis</button>
+        <span style="font-size:0.78rem;color:var(--text-muted);" id="revealHint-${p.id}">Select a response to unlock</span>
+      </div>
+    </div>
+
+    <div class="reveal-panel" id="reveal-${p.id}">
+      <h3>The Leadership Analysis</h3>
+      <div class="reveal-grid" id="revealGrid-${p.id}"></div>
+    </div>
+
+    <div class="persona-value-box" id="valuebox-${p.id}">
+      <div class="pvb-era-label">How This Persona Adds Value in the AI Era</div>
+      <div class="pvb-strengths" id="pvbStrengths-${p.id}"></div>
+      <div class="pvb-become-label">When supported well, they become:</div>
+      <div class="pvb-become" id="pvbBecome-${p.id}"></div>
+      <div class="pvb-tagline" id="pvbTagline-${p.id}"></div>
+    </div>
+
+    <div class="goal-section" id="goals-${p.id}">
+      <h3 style="margin-bottom:6px;">The Leadership Move in Practice</h3>
+      <p style="font-size:0.81rem;color:var(--text-muted);margin-bottom:18px;">Each card shows what to say in the room. Tap to flip and see what that move is actually doing — and why it works with ${p.scenario.name}.</p>
+      <div class="flip-grid" id="flipGrid-${p.id}"></div>
+      <div style="height:1px;background:var(--border);margin:24px 0;"></div>
+      <h3 style="margin-bottom:3px;">One Step Forward Goal</h3>
+      <p style="font-size:0.81rem;color:var(--text-muted);margin-bottom:14px;">Readiness-matched options. Choose the right level for the team member in mind.</p>
+      <div class="goal-tiers">
+        <div class="gt good"><div class="gt-lbl">Good</div><p>${p.goals.good}</p></div>
+        <div class="gt better"><div class="gt-lbl">Better</div><p>${p.goals.better}</p></div>
+        <div class="gt stretch"><div class="gt-lbl">Stretch</div><p>${p.goals.stretch}</p></div>
+      </div>
+    </div>
+
+    <div class="reflection-section" id="reflect-${p.id}" style="${dbg}">
+      <div class="ref-label ${dcolor}">${dlabel}</div>
+      <ul>${dqs.map(q=>`<li>${q}</li>`).join('')}</ul>
+      <textarea class="reflection-textarea" id="notes-${p.id}" placeholder="${isSolo?'Your reflections...':'Your notes from the group discussion...'}" oninput="saveNote('${p.id}')"></textarea>
+    </div>
+
+    <div class="drift-analysis-panel" id="drift-${p.id}">
+      <h4>Drift Pattern from Your Selection</h4>
+      <div class="da-pattern" id="driftName-${p.id}"></div>
+      <div class="da-desc" id="driftDesc-${p.id}"></div>
+      <div class="da-best" id="driftBest-${p.id}"></div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn-secondary" onclick="goPrev('screen-${p.id}')">← Back</button>
+      <span class="nav-hint" id="navHint-${p.id}">Select a response and reveal to continue</span>
+      <button class="btn-primary" id="nextBtn-${p.id}" onclick="goNext('screen-${p.id}')" disabled>
+        ${isLast ? 'Go to 30-Day Plan →' : 'Next Persona →'}
+      </button>
+    </div>
+  </div>
+  </div>
+</div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// CHOICE SELECTION
+// ══════════════════════════════════════════════════════════
+function selectChoice(pid, letter, driftRow, rating) {
+  const p = personas.find(x=>x.id===pid);
+  if (!p || S.revealed[pid]) return;
+
+  p.choices.forEach(c => {
+    const el = document.getElementById(`choice-${pid}-${c.letter}`);
+    if (el) el.classList.remove('selected');
+  });
+  const el = document.getElementById(`choice-${pid}-${letter}`);
+  if (el) el.classList.add('selected');
+
+  S.selections[pid] = { letter, driftRow, rating };
+
+  const btn = document.getElementById(`revealBtn-${pid}`);
+  const hint = document.getElementById(`revealHint-${pid}`);
+  if (btn) btn.disabled = false;
+  if (hint) hint.textContent = '';
+  const ctrl = document.getElementById(`revealCtrl-${pid}`);
+  if (ctrl) ctrl.classList.add('show');
+}
+
+// ══════════════════════════════════════════════════════════
+// REVEAL
+// ══════════════════════════════════════════════════════════
+function revealAnswers(pid) {
+  const p = personas.find(x=>x.id===pid);
+  if (!p || S.revealed[pid]) return;
+  S.revealed[pid] = true;
+
+  // count drift — only if a drift pattern was selected (driftRow > 0)
+  const sel = S.selections[pid];
+  if (sel && sel.driftRow > 0) S.driftCounts[sel.driftRow]++;
+
+  // style choices — lock the whole row, style by rating
+  p.choices.forEach(c => {
+    const el = document.getElementById(`choice-${pid}-${c.letter}`);
+    if (!el) return;
+    el.classList.add('locked');
+    el.classList.add(c.rating==='best'?'r-best': c.rating==='ok'?'r-ok':'r-drift');
+    // disable select-col clicks
+    const selectCol = el.querySelector('.select-col');
+    if (selectCol) selectCol.onclick = null;
+    // lock instinct col — no more changes after reveal
+    const instinctCol = el.querySelector('.instinct-col');
+    if (instinctCol) instinctCol.classList.add('locked');
+  });
+
+  // highlight the selected row
+  if (sel) {
+    const selectedEl = document.getElementById(`choice-${pid}-${sel.letter}`);
+    if (selectedEl) {
+      if (sel.rating === 'best') {
+        // leadership move selected — color with persona color
+        selectedEl.querySelector('.select-col').style.background = p.color + '22';
+        selectedEl.style.borderColor = p.color;
+      } else {
+        // drift selected — grey highlight
+        selectedEl.classList.add('selected');
+        const sc = selectedEl.querySelector('.select-col');
+        if (sc) sc.style.background = '#EDEAE5';
+      }
+    }
+  }
+
+  // build reveal grid — two columns: Your Selection (left) | Leadership Move (right)
+  const grid = document.getElementById(`revealGrid-${pid}`);
+  if (grid) {
+    const myChoice = sel ? p.choices.find(c=>c.letter===sel.letter) : null;
+    const bestChoice = p.choices.find(c=>c.rating==='best');
+    const isMatch = myChoice && myChoice.rating === 'best';
+
+    const leftCard = myChoice
+      ? `<div class="r-card ${isMatch ? 'match-card' : 'my-card'}">
+          <div class="rc-lbl">Your Selection${isMatch ? ' ✓' : ''}</div>
+          <p><strong>${myChoice.label}</strong></p>
+          <p style="margin-top:8px;">${myChoice.description}</p>
+        </div>`
+      : `<div class="r-card"><div class="rc-lbl">Your Selection</div><p style="color:var(--text-muted);">No selection recorded.</p></div>`;
+
+    const rightCard = `<div class="r-card best-card">
+        <div class="rc-lbl">AI Era Leadership Move${isMatch ? ' — You Got It' : ''}</div>
+        <p><strong>${bestChoice?.label||''}</strong></p>
+        <p style="margin-top:8px;">${bestChoice?.description||''}</p>
+      </div>`;
+
+    grid.innerHTML = leftCard + rightCard;
+  }
+
+  // populate persona value box
+  const vbox = document.getElementById(`valuebox-${pid}`);
+  if (vbox && p.value) {
+    vbox.style.background = p.color;
+    document.getElementById(`pvbStrengths-${pid}`).textContent = p.value.strengths;
+    document.getElementById(`pvbBecome-${pid}`).textContent = p.value.become;
+    document.getElementById(`pvbTagline-${pid}`).textContent = p.value.tagline;
+  }
+
+  // populate drift analysis panel
+  const driftPanel = document.getElementById(`drift-${pid}`);
+  if (driftPanel && sel && sel.driftRow > 0) {
+    const dp = driftPatterns.find(d=>d.row===sel.driftRow);
+    const bestChoice2 = p.choices.find(c=>c.rating==='best');
+    if (dp) {
+      document.getElementById(`driftName-${pid}`).textContent = dp.name;
+      document.getElementById(`driftDesc-${pid}`).textContent = dp.desc;
+      document.getElementById(`driftBest-${pid}`).innerHTML = `<strong>The more effective move:</strong> ${bestChoice2?.description||''}`;
+      driftPanel.style.borderLeftColor = p.color;
+      driftPanel.classList.add('show');
+    }
+  }
+
+  // show panels
+  document.getElementById(`reveal-${pid}`)?.classList.add('show');
+  document.getElementById(`valuebox-${pid}`)?.classList.add('show');
+  document.getElementById(`goals-${pid}`)?.classList.add('show');
+  document.getElementById(`reflect-${pid}`)?.classList.add('show');
+
+  // build flip cards
+  buildFlipCards(pid);
+
+  // enable next
+  const nextBtn = document.getElementById(`nextBtn-${pid}`);
+  const navHint = document.getElementById(`navHint-${pid}`);
+  if (nextBtn) nextBtn.disabled = false;
+  if (navHint) navHint.textContent = '';
+
+  // hide reveal button
+  const revealBtn = document.getElementById(`revealBtn-${pid}`);
+  if (revealBtn) revealBtn.style.display = 'none';
+
+  // scroll to reveal
+  setTimeout(() => {
+    document.getElementById(`reveal-${pid}`)?.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 100);
+}
+
+
+
+// ══════════════════════════════════════════════════════════
+// FLIP CARDS
+// ══════════════════════════════════════════════════════════
+function buildFlipCards(pid) {
+  const p = personas.find(x=>x.id===pid);
+  const grid = document.getElementById(`flipGrid-${pid}`);
+  if (!p || !grid) return;
+  grid.innerHTML = p.leadershipMoves.map((m,i) => `
+    <div class="flip-card" id="flip-${pid}-${i}" onclick="flipCard('${pid}',${i})">
+      <div class="flip-card-inner" id="flipInner-${pid}-${i}">
+        <div class="flip-front" id="flipFront-${pid}-${i}">
+          <div class="flip-step-num">${m.step}</div>
+          <div class="flip-say">${m.say}</div>
+          <div class="flip-tap">Tap to see why this works →</div>
+        </div>
+        <div class="flip-back" id="flipBack-${pid}-${i}">
+          <div class="flip-back-label">Why this works</div>
+          <div class="flip-why">${m.why}</div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // After render, sync each card's height to the taller side
+  requestAnimationFrame(() => {
+    p.leadershipMoves.forEach((_,i) => {
+      const front = document.getElementById(`flipFront-${pid}-${i}`);
+      const back  = document.getElementById(`flipBack-${pid}-${i}`);
+      const inner = document.getElementById(`flipInner-${pid}-${i}`);
+      const card  = document.getElementById(`flip-${pid}-${i}`);
+      if (!front || !back || !inner || !card) return;
+      const h = Math.max(front.scrollHeight, back.scrollHeight, 160);
+      card.style.minHeight = h + 'px';
+      inner.style.minHeight = h + 'px';
+      front.style.minHeight = h + 'px';
+      back.style.minHeight  = h + 'px';
+    });
+  });
+}
+
+function flipCard(pid, idx) {
+  const card = document.getElementById(`flip-${pid}-${idx}`);
+  if (card) card.classList.toggle('flipped');
+}
+
+function toggleInstinct(pid, letter, driftRow) {
+  if (!S.instincts[pid]) S.instincts[pid] = {};
+  const row = document.getElementById(`choice-${pid}-${letter}`);
+  if (!row) return;
+  const wasChecked = S.instincts[pid][letter];
+  if (wasChecked) {
+    S.instincts[pid][letter] = false;
+    row.classList.remove('instinct-checked');
+    if (driftRow > 0) S.instinctCounts[driftRow] = Math.max(0, (S.instinctCounts[driftRow]||0) - 1);
+  } else {
+    S.instincts[pid][letter] = true;
+    row.classList.add('instinct-checked');
+    if (driftRow > 0) S.instinctCounts[driftRow] = (S.instinctCounts[driftRow]||0) + 1;
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// NOTES
+// ══════════════════════════════════════════════════════════
+function saveNote(pid) {
+  const el = document.getElementById(`notes-${pid}`);
+  if (el) S.notes[pid] = el.value;
+}
+
+// ══════════════════════════════════════════════════════════
+// ACCORDION
+// ══════════════════════════════════════════════════════════
+function toggleAcc(id) {
+  const body = document.getElementById(id);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  const arrowId = id + '-arrow';
+  const arrow = document.getElementById(arrowId);
+  if (arrow) arrow.textContent = open ? '▲' : '▼';
+  // fallback for toggles without named arrow spans
+  const toggle = body.previousElementSibling;
+  if (toggle && !arrow) {
+    const span = toggle.querySelector('span');
+    if (span) span.textContent = open ? '▲' : '▼';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// PLAN SCREEN SETUP
+// ══════════════════════════════════════════════════════════
+function planSelectPersona(type, pid) {
+  S.plan[type] = pid;
+  const gridId = type === 'team' ? 'planTeamGrid' : 'planSelfGrid';
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.querySelectorAll('.pgb').forEach(b=>b.classList.remove('sel'));
+  const pids = ['id','rs','sp','oo','acc'];
+  const btn = grid.querySelectorAll('.pgb')[pids.indexOf(pid)];
+  if (btn) btn.classList.add('sel');
+}
+
+function setupPlanScreen() {
+  buildPlanInstinctComparison();
+  buildPlanMindsetShift();
+}
+
+function buildPlanInstinctComparison() {
+  const el = document.getElementById('planInstinctComparison');
+  if (!el) return;
+  const ranked = getRankedDrift();
+  const rankedI = getRankedInstinct();
+  const maxD = Math.max(...ranked.map(d=>d.count), 1);
+  const maxI = Math.max(...rankedI.map(d=>d.count), 1);
+  const anyD = ranked.some(d=>d.count>0);
+  const anyI = rankedI.some(d=>d.count>0);
+
+  function col(items, max, color, empty) {
+    if (!items.some(d=>d.count>0)) return `<p style="font-size:0.82rem;color:var(--text-muted);">${empty}</p>`;
+    return items.map(d => {
+      const pct = Math.round((d.count/max)*100);
+      return `<div class="ic-row">
+        <div class="ic-row-name">${d.name}</div>
+        <div class="ic-bar-wrap"><div class="ic-bar-bg"><div class="ic-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>
+        <div class="ic-count" style="color:${color};">${d.count}×</div>
+      </div>`;
+    }).join('');
+  }
+
+  el.innerHTML = `
+    <div class="ic-col">
+      <div class="ic-col-label"><div class="ic-dot" style="background:var(--magenta)"></div>My honest first instincts</div>
+      ${col(rankedI, maxI, 'var(--magenta)', 'Check first instinct boxes during each scenario.')}
+    </div>
+    <div class="ic-col">
+      <div class="ic-col-label"><div class="ic-dot" style="background:var(--charcoal)"></div>When I had to commit to one answer</div>
+      ${col(ranked, maxD, 'var(--charcoal)', 'Select responses during each scenario.')}
+    </div>`;
+}
+
+function getRankedDrift() {
+  return driftPatterns
+    .map(d => ({ ...d, count: S.driftCounts[d.row] || 0 }))
+    .sort((a,b) => b.count - a.count || a.row - b.row);
+}
+
+function getRankedInstinct() {
+  return driftPatterns
+    .map(d => ({ ...d, count: S.instinctCounts[d.row] || 0 }))
+    .sort((a,b) => b.count - a.count || a.row - b.row);
+}
+
+function buildPlanDriftList() {
+  const el = document.getElementById('planDriftList');
+  if (!el) return;
+  const ranked = getRankedDrift();
+  const maxCount = ranked[0].count;
+  if (maxCount === 0) {
+    el.innerHTML = '<p style="font-size:0.84rem;color:var(--text-muted);">Complete the persona simulations to see your drift pattern.</p>';
+    return;
+  }
+  el.innerHTML = ranked.map((d, i) => {
+    const isDom = i === 0 && d.count > 0;
+    const pct = maxCount > 0 ? Math.round((d.count/maxCount)*100) : 0;
+    return `<div class="drift-item ${isDom?'dominant':''}">
+      <div class="drift-rank">${i+1}</div>
+      <div class="drift-info">
+        <div class="drift-name">${d.name}</div>
+        <div class="drift-desc">${d.desc}</div>
+      </div>
+      <div class="drift-bar-wrap">
+        <div class="drift-bar-bg"><div class="drift-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="drift-count-badge">${d.count}×</div>
+      ${isDom ? '<span style="font-size:0.68rem;font-weight:700;color:var(--magenta);white-space:nowrap;margin-left:4px;">Top</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function buildPlanMindsetShift() {
+  const el = document.getElementById('planMindsetShift');
+  if (!el) return;
+  const ranked = getRankedDrift();
+  const top = ranked[0];
+  if (!top || top.count === 0) {
+    el.innerHTML = '<p style="font-size:0.84rem;color:var(--text-muted);">Complete the persona simulations to see your personalized mindset shift.</p>';
+    return;
+  }
+  el.innerHTML = `
+    <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px;">Your dominant pattern: <strong style="color:var(--magenta);">${top.name}</strong> — appears ${top.count}× across your choices.</p>
+    <div class="mindset-block">
+      <div class="mb-lbl">Mindset Shift</div>
+      <div class="mindset-from-to">
+        <div class="mb-from">"${top.from}"</div>
+        <div class="mb-arrow">→</div>
+        <div class="mb-to">"${top.to}"</div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// DEBRIEF SETUP
+// ══════════════════════════════════════════════════════════
+function buildImpactDebriefHTML() {
+  const teamItems = [
+    { val:'team-1', text:'Team members initiating AI use without being prompted' },
+    { val:'team-2', text:'Conversations shifting from "Should we use AI?" to "How should we use it?"' },
+    { val:'team-3', text:'Manual steps being replaced with documented AI workflows' },
+    { val:'team-4', text:'Quality discussions focused on judgment and synthesis — not just first drafts' },
+    { val:'team-5', text:'Peers sharing AI practices across the team' },
+  ];
+  const selfItems = [
+    { val:'self-1', text:'I initiate AI conversations proactively — not only when someone raises it' },
+    { val:'self-2', text:'I ask before I advise — I understand before I recommend' },
+    { val:'self-3', text:'I move from reassurance to capability-building in how I respond' },
+    { val:'self-4', text:'I follow up on agreed AI experiments rather than letting them fade' },
+    { val:'self-5', text:'I hold steady direction without escalating pressure' },
+  ];
+
+  function renderItems(items) {
+    return items.map(item => {
+      const cb = document.querySelector(`input[value="${item.val}"]`);
+      const checked = cb && cb.checked;
+      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border:1px solid ${checked?'var(--magenta)':'var(--border)'};border-radius:var(--radius-sm);background:${checked?'#FFF5FB':'var(--light-bg)'};margin-bottom:6px;font-size:0.84rem;color:var(--charcoal);line-height:1.5;">
+        <span style="color:${checked?'var(--magenta)':'var(--border)'};font-weight:700;flex-shrink:0;margin-top:1px;">${checked?'✓':'○'}</span>
+        <span>${item.text}</span>
+      </div>`;
+    }).join('');
+  }
+
+  return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">With My Team</div>
+      ${renderItems(teamItems)}
+    </div>
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">For Myself</div>
+      ${renderItems(selfItems)}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+function setupDebrief() {
+  const el = document.getElementById('debriefContent');
+  if (!el) return;
+
+  const ranked = getRankedDrift();
+  const rankedInstinct = getRankedInstinct();
+  const maxCount = Math.max(ranked[0].count, 1);
+  const maxInstinct = Math.max(rankedInstinct[0].count, 1);
+  const top = ranked[0];
+  const topInstinct = rankedInstinct[0];
+
+  // persona results
+  const prCards = personas.map(p => {
+    const sel = S.selections[p.id];
+    const choice = sel ? p.choices.find(c=>c.letter===sel.letter) : null;
+    const cls = !choice ? 'pr-skip' : choice.rating==='best' ? 'pr-best' : choice.rating==='ok' ? 'pr-close' : 'pr-miss';
+    const pill = !choice ? '—' : choice.rating==='best' ? 'Leadership Move' : choice.rating==='ok' ? 'Partially Effective' : 'Drift Pattern';
+    return `<div class="pr-card ${cls}" style="${choice?.rating==='best' ? `border-top-color:${p.color}` : ''}">
+      <div class="pr-emoji">${p.emoji}</div>
+      <div class="pr-name">${p.name}</div>
+      <span class="pr-pill" style="${choice?.rating==='best' ? `background:${p.color}22;color:${p.color}` : ''}">${pill}</span>
+    </div>`;
+  }).join('');
+
+  const attempted = Object.keys(S.selections).length;
+  let scoreMsg = '';
+  if (attempted === 0) scoreMsg = 'Complete the scenarios to see your patterns — every choice adds to the picture.';
+  else if (attempted < 5) scoreMsg = `${attempted} of ${personas.length} scenarios completed. Your patterns are starting to emerge.`;
+  else scoreMsg = 'All five personas explored. The analysis below reflects your leadership tendencies — a starting point, not a verdict.';
+
+  // drift ranked HTML helper
+  function driftRowHTML(d, max, color) {
+    const pct = max > 0 ? Math.round((d.count/max)*100) : 0;
+    return `<div class="ic-row">
+      <div class="ic-row-name">${d.name}</div>
+      <div class="ic-bar-wrap"><div class="ic-bar-bg"><div class="ic-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>
+      <div class="ic-count" style="color:${color};">${d.count}×</div>
+    </div>`;
+  }
+
+  const simDriftHTML = ranked.map(d => driftRowHTML(d, maxCount, 'var(--charcoal)')).join('');
+  const instinctDriftHTML = rankedInstinct.map(d => driftRowHTML(d, maxInstinct, 'var(--magenta)')).join('');
+
+  const anyInstinctData = Object.values(S.instinctCounts).some(v => v > 0);
+  const anyDriftData = Object.values(S.driftCounts).some(v => v > 0);
+
+  // gap analysis — career coach voice, specific and dynamic
+  let gapNote = '';
+  if (anyInstinctData || anyDriftData) {
+    const simTop = anyDriftData ? top.name : null;
+    const instTop = anyInstinctData ? topInstinct.name : null;
+
+    if (simTop && instTop && simTop === instTop) {
+      gapNote = `<strong>Notice something.</strong> When you had to select one response, your most frequent pattern was <strong>${simTop}</strong>. And when you checked your honest first instincts, the same pattern showed up on top. That alignment isn't a coincidence — it's a well-worn groove. The fact that it appears in both places means it's not just a situational reflex. It's your default way of entering these conversations. The question worth sitting with: <em>where does ${simTop} serve you, and where does it cost you?</em>`;
+    } else if (simTop && instTop) {
+      gapNote = `<strong>Here's something worth noticing.</strong> When you had one option to commit to, your simulation choices most often reflected <strong>${simTop}</strong>. But when you checked your honest first instincts — before selecting — the pattern that showed up most was <strong>${instTop}</strong>. That's not a contradiction. That's a gap, and the gap is the data. It suggests that when the stakes feel real and you have to move, you lean toward ${simTop} — but your gut, before the analytical mind engages, reaches for ${instTop}. <em>What does that tell you about where your default is actually set?</em>`;
+    } else if (simTop) {
+      gapNote = `Your simulation choices most often reflected <strong>${simTop}</strong>. Try the honest self-check boxes next time to see where your first instincts sit — that comparison is where the real self-awareness lives.`;
+    } else if (instTop) {
+      gapNote = `Your honest first instincts pointed most to <strong>${instTop}</strong>. Complete the simulation choices to see how that compares to what you select when you commit to one response.`;
+    }
+  }
+
+  // full drift ranked list for step 3
+  const driftHTML = ranked.map((d, i) => {
+    const isDom = i===0 && d.count > 0;
+    const pct = maxCount > 0 ? Math.round((d.count/maxCount)*100) : 0;
+    return `<div class="drift-item ${isDom?'dominant':''}">
+      <div class="drift-rank">${i+1}</div>
+      <div class="drift-info">
+        <div class="drift-name">${d.name}</div>
+        <div class="drift-desc">${d.desc}</div>
+      </div>
+      <div class="drift-bar-wrap">
+        <div class="drift-bar-bg"><div class="drift-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="drift-count-badge">${d.count}×</div>
+      ${isDom && d.count > 0 ? '<span style="font-size:0.68rem;font-weight:700;color:var(--magenta);white-space:nowrap;">Top</span>' : ''}
+    </div>`;
+  }).join('');
+
+  // mindset shift
+  const mindsetHTML = top && top.count > 0 ? `
+    <div class="mindset-block">
+      <div class="mb-lbl">Your Dominant Pattern: ${top.name}</div>
+      <div class="mindset-from-to">
+        <div class="mb-from">"${top.from}"</div>
+        <div class="mb-arrow">→</div>
+        <div class="mb-to">"${top.to}"</div>
+      </div>
+    </div>` : '<p style="font-size:0.84rem;color:var(--text-muted);">Complete the persona simulations to see your shift.</p>';
+
+  // plan fields
+  const commitName = document.getElementById('commitName')?.value || '';
+  const commitSurface = document.getElementById('commitSurface')?.value || '';
+  const commitExperiment = document.getElementById('commitExperiment')?.value || '';
+  const commitFollowUp = document.getElementById('commitFollowUp')?.value || '';
+  const successNote = document.getElementById('successNote')?.value || '';
+
+  function fv(val, placeholder) {
+    return val ? `<div class="ps-val filled">${val}</div>` : `<div class="ps-val">${placeholder}</div>`;
+  }
+
+  const teamPn = S.plan.team ? `${personaEmojis[S.plan.team]} ${personaNames[S.plan.team]}` : '<em style="color:var(--text-muted)">Not selected</em>';
+  const selfPn = S.plan.self ? `${personaEmojis[S.plan.self]} ${personaNames[S.plan.self]}` : '<em style="color:var(--text-muted)">Not selected</em>';
+
+  const notesHTML = personas
+    .filter(p => S.notes[p.id]?.trim())
+    .map(p => `<div class="notes-entry"><div class="notes-persona-label">${p.emoji} ${p.name}</div><div class="notes-text">${S.notes[p.id]}</div></div>`)
+    .join('');
+
+  el.innerHTML = `
+    <!-- 1. Your Choices -->
+    <div class="report-card">
+      <h3>Your Choices Across All Five Personas</h3>
+      <p class="report-sub">${attempted}/${personas.length} scenarios completed · ${scoreMsg}</p>
+      <div class="persona-results-row">${prCards}</div>
+    </div>
+
+    <!-- 2. Step 1+2: Team & Self -->
+    <div class="report-card">
+      <div class="step-badge"><span class="sn">1</span> STEP 1</div>
+      <h3>Where Do You See Your Team?</h3>
+      <p class="report-sub" style="margin-bottom:10px;">Most present persona on your team:</p>
+      <div style="font-size:1rem;font-weight:600;">${teamPn}</div>
+    </div>
+
+    <div class="report-card">
+      <div class="step-badge"><span class="sn">2</span> STEP 2</div>
+      <h3>Where Do You See Yourself?</h3>
+      <p class="report-sub" style="margin-bottom:10px;">Which persona shows up in you:</p>
+      <div style="font-size:1rem;font-weight:600;">${selfPn}</div>
+      <div class="self-check-note" style="margin-top:14px;">💡 The most powerful signal you can send your team is your own visible experimentation.</div>
+    </div>
+
+    <!-- 3. Patterns analysis (instinct comparison only) -->
+    <div class="report-card">
+      <h3 style="margin-bottom:4px;">What Your Patterns Are Telling You</h3>
+      <p class="report-sub">Two lenses on the same leader — what you selected when committing to one answer, and what you checked as honest first instincts before the analysis. The gap between them is where the growth lives.</p>
+      <div class="instinct-comparison">
+        <div class="ic-col">
+          <div class="ic-col-label">
+            <div class="ic-dot" style="background:var(--charcoal)"></div>
+            When I had to commit to one answer
+          </div>
+          ${anyDriftData ? simDriftHTML : '<p style="font-size:0.82rem;color:var(--text-muted);">No drift selections recorded.</p>'}
+        </div>
+        <div class="ic-col">
+          <div class="ic-col-label">
+            <div class="ic-dot" style="background:var(--magenta)"></div>
+            My honest first instincts
+          </div>
+          ${anyInstinctData ? instinctDriftHTML : '<p style="font-size:0.82rem;color:var(--text-muted);">No instinct boxes checked.</p>'}
+        </div>
+      </div>
+      ${gapNote ? `<div class="ic-gap-note" style="font-size:0.86rem;line-height:1.75;">${gapNote}</div>` : ''}
+    </div>
+
+    <!-- 4. Mindset shift -->
+    <div class="report-card">
+      <div class="step-badge"><span class="sn">4</span> STEP 4</div>
+      <h3>My Mindset Shift</h3>
+      <p class="report-sub">The shift most likely to change how you show up — based on your dominant drift.</p>
+      ${mindsetHTML}
+    </div>
+
+    <!-- 5. Commitment -->
+    <div class="report-card">
+      <div class="step-badge"><span class="sn">5</span> STEP 5</div>
+      <h3>My Commitment</h3>
+      <p class="report-sub">One conversation I will initiate in my next 1:1.</p>
+      <div class="plan-summary-grid">
+        <div class="ps-row"><div class="ps-key">Team member</div>${fv(commitName,'Not entered')}</div>
+        <div class="ps-row"><div class="ps-key">What I want to surface</div>${fv(commitSurface,'Not entered')}</div>
+        <div class="ps-row"><div class="ps-key">AI experiment</div>${fv(commitExperiment,'Not entered')}</div>
+        <div class="ps-row"><div class="ps-key">Follow-up plan</div>${fv(commitFollowUp,'Not entered')}</div>
+      </div>
+    </div>
+
+    <!-- 6. Impact -->
+    <div class="report-card">
+      <div class="step-badge"><span class="sn">6</span> STEP 6</div>
+      <h3>The Impact I Hope to See</h3>
+      <p class="report-sub">The signals you selected as most meaningful — what you're watching for over the next 30 days.</p>
+      ${buildImpactDebriefHTML()}
+      ${successNote ? `<div style="border-top:1px solid var(--border);padding-top:16px;margin-top:16px;"><div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">My Definition of Success in 30 Days</div><div style="font-size:0.86rem;color:var(--charcoal);background:var(--light-bg);padding:12px 14px;border-radius:var(--radius-sm);border-left:3px solid var(--magenta);white-space:pre-wrap;">${successNote}</div></div>` : ''}
+    </div>
+
+    ${notesHTML ? `<div class="report-card"><h3>Your Notes &amp; Reflections</h3><p class="report-sub">Captured across all five persona simulations.</p>${notesHTML}</div>` : ''}
+
+    <!-- key reminders -->
+    <div class="report-card" style="background:var(--emerald);color:white;">
+      <h3 style="color:white;margin-bottom:12px;">Key Reminders</h3>
+      <ul style="padding-left:18px;">
+        <li style="font-size:0.84rem;margin-bottom:8px;line-height:1.55;opacity:0.92;">Personas are patterns — not labels. One person can show up differently across contexts.</li>
+        <li style="font-size:0.84rem;margin-bottom:4px;line-height:1.55;opacity:0.92;">The framework sequence matters: <em>understand before you advise.</em>
+          <ol style="margin-top:8px;padding-left:20px;display:flex;flex-direction:column;gap:5px;">
+            <li style="font-size:0.82rem;opacity:0.85;">Where are you with AI right now?</li>
+            <li style="font-size:0.82rem;opacity:0.85;">What's underneath that?</li>
+            <li style="font-size:0.82rem;opacity:0.85;">What would feel like a safe next step?</li>
+            <li style="font-size:0.82rem;opacity:0.85;">Let's define one AI goal for this month.</li>
+          </ol>
+        </li>
+        <li style="font-size:0.84rem;margin-bottom:8px;line-height:1.55;opacity:0.92;">Differentiation is in pacing — not direction. Movement is expected.</li>
+        <li style="font-size:0.84rem;margin-bottom:8px;line-height:1.55;opacity:0.92;">The most powerful signal you can send is your own visible experimentation.</li>
+        <li style="font-size:0.84rem;margin-bottom:0;line-height:1.55;opacity:0.92;">Small and real beats ambitious and avoided.</li>
+      </ul>
+    </div>
+  `;
+
+  // Also build the print root
+  buildPrintRoot();
+}
+
+// ══════════════════════════════════════════════════════════
+// PRINT ROOT — clean PDF-ready version
+// ══════════════════════════════════════════════════════════
+function buildPrintRoot() {
+  const ranked = getRankedDrift();
+  const top = ranked[0];
+
+  const commitName = document.getElementById('commitName')?.value || '';
+  const commitSurface = document.getElementById('commitSurface')?.value || '';
+  const commitExperiment = document.getElementById('commitExperiment')?.value || '';
+  const commitFollowUp = document.getElementById('commitFollowUp')?.value || '';
+  const successNote = document.getElementById('successNote')?.value || '';
+
+  const teamPn = S.plan.team ? `${personaEmojis[S.plan.team]} ${personaNames[S.plan.team]}` : 'Not selected';
+  const selfPn = S.plan.self ? `${personaEmojis[S.plan.self]} ${personaNames[S.plan.self]}` : 'Not selected';
+
+  const pids = ['id','rs','sp','oo','acc'];
+
+  // persona chip list
+  const teamChip = pids.map(pid => `<span class="print-chip ${S.plan.team===pid?'selected':''}">${personaEmojis[pid]} ${personaNames[pid]}</span>`).join('');
+  const selfChip = pids.map(pid => `<span class="print-chip ${S.plan.self===pid?'selected':''}">${personaEmojis[pid]} ${personaNames[pid]}</span>`).join('');
+
+  // drift ranked
+  const maxC = ranked[0].count;
+  const driftPrint = ranked.map((d,i) => {
+    const isDom = i===0 && d.count > 0;
+    return `<div class="print-drift-item ${isDom?'dom':''}">
+      <div class="print-drift-rank">${i+1}</div>
+      <div style="flex:1;">
+        <div class="print-drift-name">${d.name}</div>
+        <div style="font-size:0.75rem;color:#6B6B6B;margin-top:1px;">${d.desc}</div>
+      </div>
+      <div class="print-drift-count">${d.count}×${isDom?' ★':''}</div>
+    </div>`;
+  }).join('');
+
+  // mindset
+  const mindsetPrint = top && top.count > 0 ? `
+    <div class="print-mindset">
+      <div class="pm-lbl">Dominant pattern: ${top.name}</div>
+      <div class="pm-row">
+        <div class="pm-from">"${top.from}"</div>
+        <div class="pm-arrow">→</div>
+        <div class="pm-to">"${top.to}"</div>
+      </div>
+    </div>` : '<p style="font-size:0.83rem;color:#6B6B6B;">Complete the persona simulations to see your personalized shift.</p>';
+
+  function pf(val, placeholder) {
+    const filled = val && val.trim();
+    return `<div class="print-field-value ${filled?'filled':'blank'}">${filled ? val : placeholder}</div>`;
+  }
+
+  // notes
+  const notesPrint = personas
+    .filter(p=>S.notes[p.id]?.trim())
+    .map(p=>`<div style="margin-bottom:12px;"><div style="font-size:0.72rem;font-weight:700;color:#C8006E;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;">${p.emoji} ${p.name}</div><div style="font-size:0.82rem;color:#2C2C2E;white-space:pre-wrap;background:#F7F5F2;padding:9px 12px;border-radius:5px;">${S.notes[p.id]}</div></div>`)
+    .join('');
+
+  const today = new Date().toLocaleDateString('en-US', {month:'long', day:'numeric', year:'numeric'});
+
+  document.getElementById('print-root').innerHTML = `
+  <!-- PAGE 1: Steps 1-4 -->
+  <div class="print-page">
+    <div class="print-header">
+      <div>
+        <div class="print-title">30-Day Manager Integration</div>
+        <div class="print-subtitle">Leading AI Conversations — Differentiated AI Adoption</div>
+      </div>
+      <div class="print-logo"><strong>BTS Enablement PMO</strong>Completed ${today}</div>
+    </div>
+
+    <div class="print-step">
+      <div class="print-step-badge">Step 1</div>
+      <h3>Where Do You See Your Team?</h3>
+      <p>Most present persona on your team right now:</p>
+      <div class="print-persona-chips">${teamChip}</div>
+    </div>
+
+    <div class="print-step">
+      <div class="print-step-badge">Step 2</div>
+      <h3>Where Do You See Yourself?</h3>
+      <p>Which persona shows up in you when it comes to AI adoption:</p>
+      <div class="print-persona-chips">${selfChip}</div>
+      <div style="font-size:0.78rem;color:#6B6B6B;margin-top:8px;padding:8px 12px;background:#F7F5F2;border-radius:5px;">The most powerful signal you can send your team is your own visible experimentation.</div>
+    </div>
+
+    <div class="print-step">
+      <div class="print-step-badge">Step 3</div>
+      <h3>My Leadership Pattern — Ranked</h3>
+      <p>Drift tendencies ranked from most to least frequent across all five scenarios.</p>
+      <div class="print-drift">${driftPrint}</div>
+    </div>
+
+    <div class="print-step">
+      <div class="print-step-badge">Step 4</div>
+      <h3>My Mindset Shift</h3>
+      <p>The shift most likely to change how you show up — based on your dominant drift.</p>
+      ${mindsetPrint}
+    </div>
+
+    <div class="print-footer">
+      <span>Leading AI Conversations — Manager Simulation</span>
+      <span>Page 1 of 2</span>
+    </div>
+  </div>
+
+  <!-- PAGE 2: Steps 5-6 + notes -->
+  <div class="print-page">
+    <div class="print-header">
+      <div>
+        <div class="print-title">30-Day Manager Integration</div>
+        <div class="print-subtitle">My Commitment &amp; the Impact I Hope to See</div>
+      </div>
+      <div class="print-logo"><strong>BTS Enablement PMO</strong>Completed ${today}</div>
+    </div>
+
+    <div class="print-step">
+      <div class="print-step-badge">Step 5</div>
+      <h3>My Commitment</h3>
+      <p>One conversation I will initiate in my next 1:1.</p>
+      <div class="print-field"><div class="print-field-label">Team Member</div>${pf(commitName,'Not entered')}</div>
+      <div class="print-field"><div class="print-field-label">What I Want to Surface or Explore</div>${pf(commitSurface,'Not entered')}</div>
+      <div class="print-field"><div class="print-field-label">One AI Experiment to Test This Month</div>${pf(commitExperiment,'Not entered')}</div>
+      <div class="print-field"><div class="print-field-label">How I Will Follow Up</div>${pf(commitFollowUp,'Not entered')}</div>
+    </div>
+
+    <div class="print-step">
+      <div class="print-step-badge">Step 6</div>
+      <h3>The Impact I Hope to See</h3>
+      <div class="print-impact-list">
+        <div class="print-impact-col">
+          <h4>With My Team</h4>
+          <ul>
+            <li>Team members initiating AI use without being prompted</li>
+            <li>Conversations shifting from "Should we?" to "How should we?"</li>
+            <li>Manual steps replaced with documented AI workflows</li>
+            <li>Quality discussions focused on judgment, not just first drafts</li>
+            <li>Peers sharing AI practices across the team</li>
+          </ul>
+        </div>
+        <div class="print-impact-col">
+          <h4>For Myself</h4>
+          <ul>
+            <li>I initiate AI conversations proactively</li>
+            <li>I ask before I advise</li>
+            <li>I move from reassurance to capability-building</li>
+            <li>I follow up on agreed AI experiments</li>
+            <li>I hold steady direction without escalating pressure</li>
+          </ul>
+        </div>
+      </div>
+      ${successNote ? `<div class="print-field" style="margin-top:12px;"><div class="print-field-label">My Definition of Success in 30 Days</div>${pf(successNote,'')}</div>` : ''}
+    </div>
+
+    ${notesPrint ? `<div class="print-step"><div class="print-step-badge">My Notes</div><h3>Reflections from the Simulation</h3>${notesPrint}</div>` : ''}
+
+    <div style="border-top:3px solid #C8006E;padding-top:12px;margin-top:20px;text-align:center;">
+      <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#2C2C2E;">"Every great AI conversation starts with one question — and one person who feels heard."</div>
+    </div>
+
+    <div class="print-footer">
+      <span>Leading AI Conversations — Manager Simulation</span>
+      <span>Page 2 of 2</span>
+    </div>
+  </div>
+  `;
+}
+
+function triggerPrint() {
+  // Rebuild print root with latest values synchronously
+  buildPrintRoot();
+  // Must call window.print() directly from user gesture — no setTimeout
+  window.print();
+}
+
+// ══════════════════════════════════════════════════════════
+// RESTART
+// ══════════════════════════════════════════════════════════
+function restartSim() {
+  S = {
+    mode: 'team', selections:{}, revealed:{},
+    driftCounts:{1:0,2:0,3:0,4:0,5:0},
+    instinctCounts:{1:0,2:0,3:0,4:0,5:0},
+    instincts:{},
+    notes:{}, plan:{team:null,self:null}, currentScreen:'screen-intro'
+  };
+  document.getElementById('modeTeam').className = 'mode-card selected';
+  document.getElementById('modeSolo').className = 'mode-card';
+  buildPersonaScreens();
+  goToScreen('screen-intro');
+}
+</script>
+</body>
+</html>
