@@ -33,20 +33,27 @@ h2{font-size:clamp(1.3rem,2.5vw,1.8rem);}
 h3{font-size:1.15rem;}
 
 /* ── PROGRESS BAR ── */
-.progress-bar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--white);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:14px;}
-.progress-logo{font-family:'DM Serif Display',serif;font-size:0.88rem;color:var(--charcoal);white-space:nowrap;display:flex;align-items:center;gap:7px;}
-.progress-logo .dot{width:8px;height:8px;border-radius:50%;background:var(--magenta);flex-shrink:0;}
-.progress-steps{display:flex;gap:3px;flex:1;align-items:center;}
-.progress-step{height:4px;border-radius:2px;flex:1;background:var(--mid-bg);transition:background 0.4s;}
-.progress-step.active{background:var(--magenta);}
-.progress-step.done{background:var(--emerald);}
-.progress-label{font-size:0.73rem;color:var(--text-muted);white-space:nowrap;}
-.mode-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.05em;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap;}
+.progress-bar{position:fixed;top:26px;left:0;right:0;z-index:200;background:var(--white);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:10px;height:46px;}
+.progress-logo{font-family:'DM Serif Display',serif;font-size:0.85rem;color:var(--charcoal);white-space:nowrap;display:flex;align-items:center;gap:7px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:background 0.15s;flex-shrink:0;}
+.progress-logo:hover{background:var(--light-bg);}
+.progress-logo .dot{width:7px;height:7px;border-radius:50%;background:var(--magenta);flex-shrink:0;}
+.progress-back{background:none;border:none;color:var(--text-muted);font-size:0.78rem;cursor:pointer;padding:4px 8px;border-radius:6px;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;flex-shrink:0;transition:all 0.15s;}
+.progress-back:hover{background:var(--light-bg);color:var(--charcoal);}
+.progress-back.hidden{visibility:hidden;pointer-events:none;}
+.progress-steps{display:flex;gap:3px;flex:1;align-items:center;overflow:hidden;}
+.progress-step{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:default;min-width:0;}
+.progress-step-bar{height:3px;border-radius:2px;width:100%;background:var(--mid-bg);transition:background 0.4s;}
+.progress-step.active .progress-step-bar{background:var(--magenta);}
+.progress-step.done .progress-step-bar{background:var(--emerald);}
+.progress-step-lbl{font-size:0.58rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;transition:color 0.2s;}
+.progress-step.active .progress-step-lbl{color:var(--magenta);font-weight:700;}
+.progress-step.done .progress-step-lbl{color:var(--emerald);}
+.mode-badge{font-size:0.68rem;font-weight:700;letter-spacing:0.05em;padding:3px 9px;border-radius:20px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;}
 .mode-badge.solo{background:#FFF0E5;color:#C44A00;border:1px solid #F5C9A8;}
 .mode-badge.team{background:#E5F5EE;color:#007A5E;border:1px solid #A8D9C6;}
 
 /* ── SCREENS ── */
-.screen{display:none;min-height:100vh;padding-top:52px;padding-bottom:52px;}
+.screen{display:none;min-height:100vh;padding-top:78px;padding-bottom:52px;}
 .screen.active{display:block;}
 .container{max-width:820px;margin:0 auto;padding:40px 24px;}
 
@@ -90,13 +97,14 @@ h3{font-size:1.15rem;}
 .fw-step .qd{font-size:0.77rem;color:var(--text-muted);}
 
 /* ── PERSONA HEADER ── */
-.persona-header{background:var(--charcoal);padding:36px 24px 28px;color:var(--white);}
+.persona-header{padding:36px 24px 28px;color:var(--white);}
 .p-num{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:7px;}
 .p-emoji{font-size:2.2rem;margin-bottom:10px;display:block;}
 .persona-header h2{color:var(--white);margin-bottom:7px;}
 .p-tagline{font-style:italic;color:rgba(255,255,255,0.62);font-size:0.97rem;}
 .p-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;}
 .p-tag{font-size:0.72rem;font-weight:500;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:20px;color:rgba(255,255,255,0.78);}
+@media(max-width:640px){.persona-header .container > div{grid-template-columns:1fr !important;}}
 
 /* ── SCENARIO ── */
 .scenario-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:28px;margin-bottom:20px;border-left:5px solid var(--blue);}
@@ -206,7 +214,40 @@ h3{font-size:1.15rem;}
 .ic-bar-fill{height:100%;border-radius:3px;transition:width 0.6s;}
 .ic-count{font-size:0.72rem;font-weight:700;min-width:20px;text-align:right;}
 .ic-gap-note{font-size:0.78rem;color:var(--text-muted);margin-top:12px;padding:10px 12px;background:var(--white);border-radius:var(--radius-sm);border-left:3px solid var(--magenta);line-height:1.55;}
-/* ── IMPACT CHECKBOXES ── */
+/* ── TIMERS ── */
+.timer-block{border-radius:var(--radius-sm);padding:18px 20px;margin-bottom:18px;}
+.timer-block-1{background:#EAF4FF;border:1px solid #BDD9F5;}
+.timer-block-2{background:#EAF4FF;border:1px solid #BDD9F5;}
+.timer-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
+.timer-label{font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);display:flex;align-items:center;gap:7px;}
+.timer-display{font-family:'DM Serif Display',serif;font-size:1.6rem;font-weight:700;color:var(--blue);letter-spacing:0.03em;min-width:52px;text-align:center;}
+.timer-display.urgent{color:var(--magenta);animation:pulse 1s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+.timer-instructions{font-size:0.84rem;color:var(--charcoal);line-height:1.6;margin-bottom:14px;}
+.timer-btn-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.timer-start-btn{background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);padding:9px 20px;font-size:0.84rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.timer-start-btn:hover{background:#163d6b;}
+.timer-start-btn.running{background:var(--charcoal);}
+.timer-skip-btn{background:none;border:1px solid var(--blue);color:var(--blue);border-radius:var(--radius-sm);padding:8px 16px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.timer-skip-btn:hover{background:var(--blue);color:white;}
+.timer-progress{height:4px;background:rgba(28,76,134,0.15);border-radius:2px;margin-top:12px;overflow:hidden;}
+.timer-progress-fill{height:100%;background:var(--blue);border-radius:2px;transition:width 1s linear;}
+.timer-complete-badge{font-size:0.75rem;font-weight:700;color:var(--emerald);background:#F0FBF7;border:1px solid var(--emerald);border-radius:20px;padding:3px 12px;display:none;}
+.timer-complete-badge.show{display:inline-block;}
+
+/* Timer 2 overlay popup */
+.timer-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s;}
+.timer-popup-overlay.show{opacity:1;pointer-events:all;}
+.timer-popup{background:white;border-radius:var(--radius);padding:32px 36px;max-width:420px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);}
+.timer-popup-emoji{font-size:2.5rem;margin-bottom:12px;}
+.timer-popup h3{margin-bottom:8px;font-size:1.1rem;}
+.timer-popup p{font-size:0.86rem;color:var(--text-muted);margin-bottom:20px;line-height:1.6;}
+.timer-popup-btn{background:var(--magenta);color:white;border:none;border-radius:var(--radius-sm);padding:11px 28px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.so-what-block{margin-top:14px;padding:16px 18px;border-radius:var(--radius-sm);border-left:4px solid var(--magenta);background:var(--light-bg);}
+.so-what-label{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--magenta);margin-bottom:6px;}
+.so-what-text{font-size:0.9rem;color:var(--charcoal);line-height:1.7;font-style:italic;}
+.persona-selected-name{font-size:1.15rem;font-weight:700;color:var(--charcoal);margin-bottom:2px;}
+.persona-not-selected{font-size:0.86rem;color:var(--text-muted);font-style:italic;}
 .impact-check-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all 0.15s;font-size:0.86rem;color:var(--charcoal);line-height:1.5;background:var(--light-bg);}
 .impact-check-item:hover{border-color:var(--magenta);background:#FFF5FB;}
 .impact-check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--magenta);flex-shrink:0;margin-top:2px;cursor:pointer;}
@@ -405,10 +446,20 @@ h3{font-size:1.15rem;}
 
 /* chips */
 .persona-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px;}
-.chip{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:0.8rem;font-weight:500;display:flex;align-items:center;gap:5px;}
+.chip{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:0.8rem;font-weight:500;display:flex;align-items:center;gap:5px;cursor:pointer;transition:all 0.15s;}
+.chip:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+.chip-popup-overlay{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.chip-popup-overlay.show{opacity:1;pointer-events:all;}
+.chip-popup{border-radius:var(--radius);padding:28px 32px;max-width:420px;width:90%;color:white;box-shadow:0 20px 60px rgba(0,0,0,0.3);cursor:pointer;position:relative;}
+.chip-popup-name{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.7;margin-bottom:4px;}
+.chip-popup-title{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:18px;}
+.chip-popup-from{font-size:0.86rem;font-style:italic;opacity:0.75;margin-bottom:10px;line-height:1.6;}
+.chip-popup-arrow{font-size:1.1rem;color:rgba(255,255,255,0.5);margin-bottom:10px;}
+.chip-popup-to{font-size:0.92rem;font-weight:600;line-height:1.6;}
+.chip-popup-dismiss{font-size:0.72rem;opacity:0.5;margin-top:18px;letter-spacing:0.05em;text-transform:uppercase;}
 
 /* hint box */
-.hint{background:#EAF4FF;border:1px solid #BDD9F5;border-radius:var(--radius-sm);padding:10px 14px;font-size:0.8rem;color:#1A4E7C;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start;}
+.hint{background:#EAF4FF;border:1px solid #BDD9F5;border-radius:var(--radius-sm);padding:20px 28px;font-size:1.0rem;color:#1A4E7C;margin-bottom:14px;display:flex;gap:12px;align-items:center;line-height:1.7;justify-content:center;text-align:center;}
 
 /* section divider */
 .sec-divider{border:none;border-top:1px solid var(--border);margin:20px 0;}
@@ -485,11 +536,11 @@ h3{font-size:1.15rem;}
   .print-drift-item.dom .print-drift-count { color: #C8006E; }
 
   .print-mindset { background: #2C2C2E; color: white; padding: 14px 18px; border-radius: 6px; margin-top: 10px; }
-  .print-mindset .pm-lbl { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.5; margin-bottom: 7px; }
+  .print-mindset .pm-lbl { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.75); margin-bottom: 7px; }
   .print-mindset .pm-row { display: flex; align-items: center; gap: 12px; }
-  .print-mindset .pm-from { font-size: 0.8rem; opacity: 0.65; font-style: italic; flex: 1; }
+  .print-mindset .pm-from { font-size: 0.82rem; color: rgba(255,255,255,0.9); font-style: italic; flex: 1; }
   .print-mindset .pm-arrow { color: #C8006E; font-size: 1rem; }
-  .print-mindset .pm-to { font-size: 0.8rem; font-weight: 500; flex: 1; }
+  .print-mindset .pm-to { font-size: 0.82rem; font-weight: 600; color: white; flex: 1; }
 
   .print-impact-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .print-impact-col h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #6B6B6B; margin-bottom: 7px; }
@@ -505,11 +556,381 @@ h3{font-size:1.15rem;}
 </head>
 <body>
 
-<!-- PROGRESS BAR -->
+<!-- ══ ELI COMMITTEE BAR (above progress bar) ══ -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:300;background:var(--charcoal);height:26px;display:flex;align-items:center;padding:0 12px;" class="no-print">
+  <button onclick="openDashboard()" style="background:none;border:none;color:rgba(255,255,255,0.55);font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;font-family:'DM Sans',sans-serif;padding:2px 8px;border-radius:4px;transition:color 0.15s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.55)'">📊 ELI Committee View</button>
+</div>
+
+<!-- ══ DASHBOARD OVERLAY ══ -->
+<div id="dashOverlay" style="display:none;position:fixed;inset:0;z-index:9500;background:#0F1923;overflow-y:auto;font-family:'DM Sans',sans-serif;">
+
+  <!-- LOGIN SCREEN -->
+  <div id="dashLogin" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+    <div style="background:#182534;border:1px solid rgba(29,114,121,0.3);border-radius:16px;padding:40px 44px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,0.5);">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="width:48px;height:48px;background:linear-gradient(135deg,#1D7279,#CA1C68);border-radius:12px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;">📊</div>
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#1D7279;margin-bottom:6px;">ELI Committee Dashboard</div>
+        <h2 style="color:white;font-size:1.4rem;margin:0;">Leading AI Conversations</h2>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.82rem;margin-top:6px;">Results Dashboard</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:block;margin-bottom:6px;">Password</label>
+          <input type="password" id="dashPwd" placeholder="Enter password" style="width:100%;box-sizing:border-box;background:#0F1923;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:11px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;" onkeydown="if(event.key==='Enter')document.getElementById('dashToken').focus()">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.45);display:block;margin-bottom:6px;">Smartsheet API Token</label>
+          <input type="password" id="dashToken" placeholder="Paste your API token" style="width:100%;box-sizing:border-box;background:#0F1923;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:11px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;" onkeydown="if(event.key==='Enter')dashLogin()">
+        </div>
+        <div id="dashLoginErr" style="display:none;color:#FF6B6B;font-size:0.8rem;text-align:center;"></div>
+        <button onclick="dashLogin()" style="background:linear-gradient(135deg,#1D7279,#155a60);color:white;border:none;border-radius:8px;padding:13px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">Access Dashboard →</button>
+        <button onclick="closeDashboard()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:0.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;padding:4px;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD MAIN -->
+  <div id="dashMain" style="display:none;padding:28px 32px;max-width:1200px;margin:0 auto;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#1D7279;margin-bottom:4px;">ELI Committee Dashboard</div>
+        <h1 style="color:white;font-size:1.6rem;margin:0;">Leading AI Conversations — Results</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <!-- Anonymous/Named toggle -->
+        <div style="display:flex;background:#182534;border:1px solid rgba(255,255,255,0.1);border-radius:8px;overflow:hidden;">
+          <button id="toggleAnon" onclick="setViewMode('anonymous')" style="padding:7px 14px;font-size:0.78rem;font-weight:600;font-family:'DM Sans',sans-serif;border:none;cursor:pointer;background:#1D7279;color:white;transition:all 0.15s;">Anonymous</button>
+          <button id="toggleNamed" onclick="setViewMode('named')" style="padding:7px 14px;font-size:0.78rem;font-weight:600;font-family:'DM Sans',sans-serif;border:none;cursor:pointer;background:transparent;color:rgba(255,255,255,0.4);transition:all 0.15s;">Named</button>
+        </div>
+        <!-- Team filter -->
+        <select id="teamFilter" onchange="applyFilters()" style="background:#182534;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:7px 12px;color:white;font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer;">
+          <option value="all">All Teams</option>
+          <option>ACT</option><option>Contingent Workforce Management</option><option>Demo</option>
+          <option>Digital</option><option>EA/Office Managers</option><option>Finance</option>
+          <option>Graphic Design</option><option>Help Desk</option><option>Logistics</option>
+          <option>Marketing</option><option>Momenta</option><option>PMO</option>
+          <option>PRO</option><option>Prod</option><option>PX</option>
+          <option>SET</option><option>Talent Acquisition</option><option>Test</option>
+          <option>Virtual Operators</option>
+        </select>
+        <button onclick="loadDashData()" style="background:rgba(29,114,121,0.2);border:1px solid rgba(29,114,121,0.4);color:#1D7279;border-radius:8px;padding:7px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">↻ Refresh</button>
+        <button onclick="closeDashboard()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);border-radius:8px;padding:7px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">✕ Close</button>
+      </div>
+    </div>
+
+    <div id="dashLoading" style="text-align:center;padding:60px;color:rgba(255,255,255,0.4);">
+      <div style="font-size:2rem;margin-bottom:12px;">⏳</div>
+      <div>Loading results from Smartsheet...</div>
+    </div>
+
+    <div id="dashContent" style="display:none;">
+
+      <!-- KPI Row -->
+      <div id="kpiRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;"></div>
+
+      <!-- Row 1: Drift + Instinct -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="dash-card">
+          <div class="dash-card-title">Dominant Drift — When Committing to One Answer</div>
+          <div id="chartDrift"></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Dominant Instinct — Honest Self-Check</div>
+          <div id="chartInstinct"></div>
+        </div>
+      </div>
+
+      <!-- Row 2: Team Persona + Self Persona -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="dash-card">
+          <div class="dash-card-title">Team Persona Identified (Step 1)</div>
+          <div id="chartTeamPersona"></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Self Persona Identified (Step 2)</div>
+          <div id="chartSelfPersona"></div>
+        </div>
+      </div>
+
+      <!-- Row 3: Per-Persona Choices -->
+      <div class="dash-card" style="margin-bottom:16px;">
+        <div class="dash-card-title">Choice per Scenario — All Participants</div>
+        <div id="chartChoices" style="overflow-x:auto;"></div>
+      </div>
+
+      <!-- Row 4: Impact selections -->
+      <div class="dash-card" style="margin-bottom:16px;">
+        <div class="dash-card-title">Impact Goals Selected</div>
+        <div id="chartImpact"></div>
+      </div>
+
+      <!-- Row 5: Named submissions table (only in named mode) -->
+      <div class="dash-card" id="namedTableCard" style="display:none;margin-bottom:16px;">
+        <div class="dash-card-title">Participant Responses</div>
+        <div id="namedTable" style="overflow-x:auto;"></div>
+      </div>
+
+    </div><!-- /dashContent -->
+  </div><!-- /dashMain -->
+</div><!-- /dashOverlay -->
+
+<style>
+.dash-card{background:#182534;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:22px 24px;}
+.dash-card-title{font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:16px;}
+.dash-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.dash-bar-label{font-size:0.82rem;color:rgba(255,255,255,0.75);min-width:180px;flex-shrink:0;}
+.dash-bar-track{flex:1;background:rgba(255,255,255,0.06);border-radius:4px;height:20px;overflow:hidden;}
+.dash-bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease;}
+.dash-bar-count{font-size:0.78rem;font-weight:600;color:rgba(255,255,255,0.5);min-width:28px;text-align:right;}
+.kpi-card{background:#182534;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px 20px;text-align:center;}
+.kpi-num{font-family:'DM Serif Display',serif;font-size:2.2rem;color:white;line-height:1;}
+.kpi-lbl{font-size:0.72rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-top:6px;}
+.dash-table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+.dash-table th{text-align:left;padding:8px 12px;font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.35);border-bottom:1px solid rgba(255,255,255,0.08);}
+.dash-table td{padding:8px 12px;color:rgba(255,255,255,0.7);border-bottom:1px solid rgba(255,255,255,0.05);}
+.dash-table tr:hover td{background:rgba(255,255,255,0.03);}
+</style>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════════
+const DASH_PWD = 'ElyaBottiger';
+const SHEET_ID = '2043670560722820';
+let dashData = [];
+let dashFiltered = [];
+let dashViewMode = 'anonymous';
+let dashToken = '';
+
+function openDashboard() {
+  document.getElementById('dashOverlay').style.display = 'block';
+  document.getElementById('dashLogin').style.display = 'flex';
+  document.getElementById('dashMain').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('dashPwd').focus(), 100);
+}
+
+function closeDashboard() {
+  document.getElementById('dashOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function dashLogin() {
+  const pwd = document.getElementById('dashPwd').value;
+  const token = document.getElementById('dashToken').value.trim();
+  const err = document.getElementById('dashLoginErr');
+  if (pwd !== DASH_PWD) { err.textContent = 'Incorrect password.'; err.style.display = 'block'; return; }
+  if (!token) { err.textContent = 'Please enter your Smartsheet API token.'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  dashToken = token;
+  document.getElementById('dashLogin').style.display = 'none';
+  document.getElementById('dashMain').style.display = 'block';
+  loadDashData();
+}
+
+async function loadDashData() {
+  document.getElementById('dashLoading').style.display = 'block';
+  document.getElementById('dashContent').style.display = 'none';
+  try {
+    // Smartsheet API supports CORS — call directly with Authorization header
+    const res = await fetch(`https://api.smartsheet.com/2.0/sheets/${SHEET_ID}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${dashToken}`,
+        'Accept': 'application/json'
+      },
+      mode: 'cors'
+    });
+    if (res.status === 401) throw new Error('Invalid token — please check your Smartsheet API token');
+    if (res.status === 403) throw new Error('Access denied — your token may not have permission to read this sheet');
+    if (!res.ok) throw new Error(`API error ${res.status} — please retry`);
+    const json = await res.json();
+
+    // Build column index
+    const colIdx = {};
+    json.columns.forEach(c => colIdx[c.title] = c.id);
+
+    // Parse rows
+    dashData = (json.rows || []).map(row => {
+      const get = (title) => {
+        const col = json.columns.find(c => c.title === title);
+        if (!col) return '';
+        const cell = row.cells.find(c => c.columnId === col.id);
+        return cell?.displayValue || cell?.value || '';
+      };
+      return {
+        date: get('Submission Date'),
+        type: get('Submission Type'),
+        name: get('Participant Name'),
+        team: get('Team'),
+        teamPersona: get('Team Persona'),
+        selfPersona: get('Self Persona'),
+        dominantDrift: get('Dominant Drift (Simulation)'),
+        dominantInstinct: get('Dominant Instinct (Self-Check)'),
+        idChoice: get('Identity Defender Choice'),
+        rsChoice: get('Responsible Skeptic Choice'),
+        spChoice: get('Skill Purist Choice'),
+        ooChoice: get('Overwhelmed Operator Choice'),
+        accChoice: get('Accelerator Choice'),
+        mindset: get('Mindset Shift (To)'),
+        surface: get('What I Want to Surface'),
+        experiment: get('AI Experiment Planned'),
+        followUp: get('Follow-Up Plan'),
+        impTeam1: get('Impact: Team Members Initiating AI'),
+        impTeam2: get('Impact: Conversations Shifting to How'),
+        impTeam3: get('Impact: Manual Steps Replaced'),
+        impTeam4: get('Impact: Quality Discussions on Judgment'),
+        impTeam5: get('Impact: Peers Sharing AI Practices'),
+        impSelf1: get('Impact: I Initiate AI Conversations'),
+        impSelf2: get('Impact: I Ask Before I Advise'),
+        impSelf3: get('Impact: I Build Capability Not Reassurance'),
+        impSelf4: get('Impact: I Follow Up on AI Experiments'),
+        impSelf5: get('Impact: I Hold Steady Direction'),
+      };
+    });
+
+    applyFilters();
+    document.getElementById('dashLoading').style.display = 'none';
+    document.getElementById('dashContent').style.display = 'block';
+  } catch(e) {
+    document.getElementById('dashLoading').innerHTML = `<div style="color:#FF6B6B;font-size:0.9rem;">⚠️ ${e.message}</div><button onclick="loadDashData()" style="margin-top:12px;background:#1D7279;color:white;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;">Retry</button>`;
+  }
+}
+
+function setViewMode(mode) {
+  dashViewMode = mode;
+  document.getElementById('toggleAnon').style.background = mode === 'anonymous' ? '#1D7279' : 'transparent';
+  document.getElementById('toggleAnon').style.color = mode === 'anonymous' ? 'white' : 'rgba(255,255,255,0.4)';
+  document.getElementById('toggleNamed').style.background = mode === 'named' ? '#1D7279' : 'transparent';
+  document.getElementById('toggleNamed').style.color = mode === 'named' ? 'white' : 'rgba(255,255,255,0.4)';
+  applyFilters();
+}
+
+function applyFilters() {
+  const team = document.getElementById('teamFilter').value;
+  dashFiltered = dashData.filter(r => {
+    if (team !== 'all' && r.team !== team) return false;
+    if (dashViewMode === 'anonymous') return true; // show all, mask names
+    return true;
+  });
+  renderDashboard();
+}
+
+function renderDashboard() {
+  const rows = dashFiltered;
+  const n = rows.length;
+  const namedCard = document.getElementById('namedTableCard');
+
+  // Show/hide named table
+  namedCard.style.display = dashViewMode === 'named' ? 'block' : 'none';
+
+  // KPIs
+  const lmCount = rows.filter(r => [r.idChoice,r.rsChoice,r.spChoice,r.ooChoice,r.accChoice].filter(c=>c==='Leadership Move').length > 0).length;
+  const avgLM = n > 0 ? (rows.reduce((s,r)=>{
+    return s + [r.idChoice,r.rsChoice,r.spChoice,r.ooChoice,r.accChoice].filter(c=>c==='Leadership Move').length;
+  },0) / n).toFixed(1) : '—';
+  const committed = rows.filter(r => r.experiment || r.surface).length;
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi-card"><div class="kpi-num" style="color:#1D7279;">${n}</div><div class="kpi-lbl">Total Submissions</div></div>
+    <div class="kpi-card"><div class="kpi-num" style="color:#CA1C68;">${avgLM}</div><div class="kpi-lbl">Avg Leadership Moves / Person</div></div>
+    <div class="kpi-card"><div class="kpi-num" style="color:#007A5E;">${committed}</div><div class="kpi-lbl">Commitments Entered</div></div>
+    <div class="kpi-card"><div class="kpi-num" style="color:#D4670A;">${n > 0 ? Math.round((rows.filter(r=>r.type==='Anonymous').length/n)*100) : 0}%</div><div class="kpi-lbl">Anonymous Submissions</div></div>`;
+
+  // Bar chart helper
+  const driftColors = {'Push Too Fast':'#CA1C68','Over-Reassure':'#D4670A','Avoid the Topic':'#005B9A','Debate Instead of Explore':'#7B5EA7','Rescue':'#007A5E','Leadership Move':'#1D7279','None':'rgba(255,255,255,0.2)','Not completed':'rgba(255,255,255,0.1)'};
+  const personaColors = {'Identity Defender':'#CA1C68','Responsible Skeptic':'#005B9A','Skill Purist':'#007A5E','Overwhelmed Operator':'#7B5EA7','Accelerator':'#D4670A'};
+
+  function barChart(containerId, counts, colorMap, maxOverride) {
+    const sorted = Object.entries(counts).filter(([k])=>k&&k!=='').sort((a,b)=>b[1]-a[1]);
+    const max = maxOverride || (sorted[0]?.[1] || 1);
+    document.getElementById(containerId).innerHTML = sorted.map(([label, count]) => {
+      const pct = Math.round((count/max)*100);
+      const color = colorMap?.[label] || '#1D7279';
+      return `<div class="dash-bar-row">
+        <div class="dash-bar-label">${label}</div>
+        <div class="dash-bar-track"><div class="dash-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+        <div class="dash-bar-count">${count}</div>
+      </div>`;
+    }).join('') || '<div style="color:rgba(255,255,255,0.3);font-size:0.84rem;">No data yet.</div>';
+  }
+
+  function countField(field) {
+    const c = {};
+    rows.forEach(r => { const v = r[field]; if(v) c[v] = (c[v]||0)+1; });
+    return c;
+  }
+
+  barChart('chartDrift', countField('dominantDrift'), driftColors);
+  barChart('chartInstinct', countField('dominantInstinct'), driftColors);
+  barChart('chartTeamPersona', countField('teamPersona'), personaColors);
+  barChart('chartSelfPersona', countField('selfPersona'), personaColors);
+
+  // Per-persona choices
+  const personas = [
+    {label:'Identity Defender', field:'idChoice'},
+    {label:'Responsible Skeptic', field:'rsChoice'},
+    {label:'Skill Purist', field:'spChoice'},
+    {label:'Overwhelmed Operator', field:'ooChoice'},
+    {label:'Accelerator', field:'accChoice'},
+  ];
+  document.getElementById('chartChoices').innerHTML = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;">` +
+    personas.map(p => {
+      const c = countField(p.field);
+      const sorted = Object.entries(c).sort((a,b)=>b[1]-a[1]);
+      const max = sorted[0]?.[1]||1;
+      return `<div><div style="font-size:0.75rem;font-weight:700;color:${personaColors[p.label]||'#1D7279'};margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em;">${p.label}</div>` +
+        sorted.map(([lbl,cnt])=>`<div class="dash-bar-row" style="margin-bottom:6px;">
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.6);flex:1;">${lbl}</div>
+          <div class="dash-bar-track" style="width:60px;height:14px;flex:none;margin:0 8px;"><div class="dash-bar-fill" style="width:${Math.round((cnt/max)*100)}%;background:${driftColors[lbl]||'#1D7279'};height:100%;"></div></div>
+          <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);min-width:16px;">${cnt}</div>
+        </div>`).join('') + '</div>';
+    }).join('') + '</div>';
+
+  // Impact chart
+  const impactItems = [
+    {key:'impTeam1',label:'Team initiating AI use'},
+    {key:'impTeam2',label:'Conversations shifting to "How"'},
+    {key:'impTeam3',label:'Manual steps replaced'},
+    {key:'impTeam4',label:'Quality discussions on judgment'},
+    {key:'impTeam5',label:'Peers sharing AI practices'},
+    {key:'impSelf1',label:'I initiate AI conversations'},
+    {key:'impSelf2',label:'I ask before I advise'},
+    {key:'impSelf3',label:'I build capability not reassurance'},
+    {key:'impSelf4',label:'I follow up on AI experiments'},
+    {key:'impSelf5',label:'I hold steady direction'},
+  ];
+  const impCounts = {};
+  impactItems.forEach(i => { impCounts[i.label] = rows.filter(r=>r[i.key]==='Yes').length; });
+  barChart('chartImpact', impCounts, null, n||1);
+
+  // Named table
+  if (dashViewMode === 'named') {
+    const headers = ['Date','Name','Team','Team Persona','Self Persona','Dominant Drift','Dominant Instinct'];
+    document.getElementById('namedTable').innerHTML = `<table class="dash-table">
+      <thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r=>`<tr>
+        <td>${r.date}</td>
+        <td>${r.type==='Anonymous'?'<em style="opacity:0.4">Anonymous</em>':r.name||'—'}</td>
+        <td>${r.team||'—'}</td>
+        <td>${r.teamPersona||'—'}</td>
+        <td>${r.selfPersona||'—'}</td>
+        <td style="color:${driftColors[r.dominantDrift]||'white'}">${r.dominantDrift||'—'}</td>
+        <td style="color:${driftColors[r.dominantInstinct]||'white'}">${r.dominantInstinct||'—'}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+  }
+}
+</script>
+
+
 <nav class="progress-bar" id="progressBar">
-  <div class="progress-logo"><span class="dot"></span>Leading AI Conversations</div>
+  <div class="progress-logo" onclick="goHomeKeepState()" title="Return to home">
+    <span class="dot"></span>Leading AI Conversations
+  </div>
+  <button class="progress-back hidden" id="progressBackBtn" onclick="progressGoBack()">← Back</button>
   <div class="progress-steps" id="progressSteps"></div>
-  <span class="progress-label" id="progressLabel">Intro</span>
   <span class="mode-badge" id="modeBadge" style="display:none"></span>
 </nav>
 
@@ -548,10 +969,10 @@ h3{font-size:1.15rem;}
 
       <!-- Key details row -->
       <div style="display:flex;justify-content:center;gap:6px;flex-wrap:wrap;">
-        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">⏱ ~2 hours total</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">⏱ Team ~2h 15min · Solo ~1h 15min</div>
         <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">🎭 5 simulated scenarios</div>
-        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">📅 30-day action plan</div>
         <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">🪞 Personal drift analysis</div>
+        <div style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:10px 20px;font-size:0.8rem;color:rgba(255,255,255,0.85);">📅 30-day action plan</div>
       </div>
     </div>
   </div>
@@ -576,15 +997,28 @@ h3{font-size:1.15rem;}
       </div>
 
       <!-- PERSONAS -->
-      <h3 style="margin-bottom:10px;">Five AI Readiness Personas</h3>
+      <h3 style="margin-bottom:10px;">Five Relationship with AI Personas</h3>
       <div class="persona-chips">
-        <div class="chip">🛡 Identity Defender</div>
-        <div class="chip">🔍 Responsible Skeptic</div>
-        <div class="chip">⚙️ Skill Purist</div>
-        <div class="chip">⏳ Overwhelmed Operator</div>
-        <div class="chip">⚡ Accelerator</div>
+        <div class="chip" onclick="showChipPopup('id')">🛡 Identity Defender</div>
+        <div class="chip" onclick="showChipPopup('rs')">🔍 Responsible Skeptic</div>
+        <div class="chip" onclick="showChipPopup('sp')">⚙️ Skill Purist</div>
+        <div class="chip" onclick="showChipPopup('oo')">⏳ Overwhelmed Operator</div>
+        <div class="chip" onclick="showChipPopup('acc')">⚡ Accelerator</div>
       </div>
-      <div class="hint">💡 These are patterns — not labels. No one is only one persona. Use them as diagnostic lenses, not fixed identities.</div>
+
+      <div id="chipPopupOverlay" class="chip-popup-overlay" onclick="hideChipPopup()">
+        <div class="chip-popup" id="chipPopup">
+          <div class="chip-popup-name" id="chipPopupName"></div>
+          <div class="chip-popup-title" id="chipPopupTitle"></div>
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-bottom:4px;margin-top:14px;">The starting point</div>
+          <div class="chip-popup-from" id="chipPopupFrom"></div>
+          <div class="chip-popup-arrow">↓</div>
+          <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.55;margin-bottom:4px;">The shift</div>
+          <div class="chip-popup-to" id="chipPopupTo"></div>
+          <div class="chip-popup-dismiss">Tap anywhere to close</div>
+        </div>
+      </div>
+      <div class="hint">💡 These are patterns — not labels. No one is only one persona.<br>Use them as diagnostic lenses, not fixed identities.</div>
 
       <!-- TIMING -->
       <h3 style="margin-bottom:12px;">Recommended Agenda</h3>
@@ -593,8 +1027,8 @@ h3{font-size:1.15rem;}
         <div class="timing-row"><span>🎭 Each persona (read + respond + reveal)</span><span>~10 min</span></div>
         <div class="timing-row"><span>💬 Team discussion per persona <em style="font-weight:400;color:var(--text-muted);">(team mode)</em></span><span>~10 min</span></div>
         <div class="timing-row"><span>📊 Personal debrief</span><span>~5–10 min</span></div>
-        <div class="timing-row"><span>📅 30-Day Plan</span><span>~30 min</span></div>
-        <div class="timing-row total"><span>Total</span><span>~2 hours</span></div>
+        <div class="timing-row"><span>📅 30-Day Plan</span><span>~15 min</span></div>
+        <div class="timing-row total"><span>Total</span><span style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;"><span>👥 Team ~2 hrs 15 min</span><span style="display:flex;align-items:center;gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="7" r="4" fill="#2C2C2E"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#2C2C2E" stroke-width="2" stroke-linecap="round"/></svg> On My Own ~1 hr 15 min</span></span></div>
       </div>
 
       <div style="text-align:center;padding-bottom:60px;">
@@ -614,7 +1048,7 @@ h3{font-size:1.15rem;}
     <div class="container" style="padding-bottom:0;">
       <div class="intro-label">Before You Begin</div>
       <h1>Know Your Starting Point</h1>
-      <p>Understanding your own AI readiness — and your team's — makes every conversation in this simulation more meaningful.</p>
+      <p>Understanding your own relationship with AI — and your team's — makes every conversation in this simulation more meaningful.</p>
     </div>
   </div>
 
@@ -623,8 +1057,8 @@ h3{font-size:1.15rem;}
 
       <div style="background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:32px;margin:32px 0 24px;border-top:5px solid var(--magenta);">
         <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--magenta);margin-bottom:12px;">Recommended</div>
-        <h2 style="margin-bottom:12px;">Take the AI Readiness Assessment</h2>
-        <p style="font-size:0.92rem;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">The BTS AI Readiness Assessment helps you identify which of the five personas resonates most with where you are right now — and where your team members might be. It takes about 10–15 minutes and gives you a starting point to bring into this simulation. If you've already taken it, you're all set.</p>
+        <h2 style="margin-bottom:12px;">Take the Relationship with AI Assessment</h2>
+        <p style="font-size:0.92rem;color:var(--text-muted);line-height:1.7;margin-bottom:24px;">The BTS Relationship with AI Assessment helps you identify which of the five personas resonates most with where you are right now — and where your team members might be. It takes about 10–12 minutes and gives you a starting point to bring into this simulation. If you've already taken it, you're all set.</p>
 
         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
           <a href="https://ebottiger.github.io/bts-ai-readiness-assessment-test/" target="_blank" rel="noopener" style="background:var(--magenta);color:white;border-radius:var(--radius-sm);padding:13px 28px;font-family:'DM Sans',sans-serif;font-size:0.95rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all 0.2s;">
@@ -725,6 +1159,15 @@ h3{font-size:1.15rem;}
 <!-- ══════════════════════════════════════════════
      PERSONA SCREENS (built by JS)
 ══════════════════════════════════════════════ -->
+<div id="timerPopup" class="timer-popup-overlay">
+  <div class="timer-popup">
+    <div class="timer-popup-emoji">⏰</div>
+    <h3>Time's up — nice work!</h3>
+    <p id="timerPopupMsg">Five minutes of discussion is a good start. Wrap up your notes and get ready to move to the next persona.</p>
+    <button class="timer-popup-btn" onclick="dismissTimerPopup()">Got it, moving on →</button>
+  </div>
+</div>
+
 <div id="personaScreens"></div>
 
 <!-- ══════════════════════════════════════════════
@@ -879,6 +1322,58 @@ h3{font-size:1.15rem;}
       <cite>Leading AI Conversations, Manager Field Guide</cite>
     </div>
 
+    <div class="report-card no-print" id="submitCard" style="border:2px solid var(--emerald);">
+      <div style="display:flex;align-items:flex-start;gap:16px;">
+        <div style="font-size:1.8rem;flex-shrink:0;">📊</div>
+        <div style="flex:1;">
+          <h3 style="margin-bottom:4px;">Share Your Results</h3>
+          <p style="font-size:0.86rem;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Your results help us understand how our team is navigating AI conversations. Submissions are used only in aggregate — no individual responses are shared. You can submit anonymously or include your name.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" id="submitOptions">
+            <div>
+              <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Anonymous Submission</div>
+              <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">Your pattern data is submitted with no identifying information attached.</p>
+              <button class="btn-primary" style="background:var(--emerald);" onclick="submitResults('anonymous')">Submit Anonymously →</button>
+            </div>
+            <div>
+              <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Named Submission</div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
+                <input type="text" id="submitName" placeholder="Your name" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.84rem;width:100%;box-sizing:border-box;">
+                <select id="submitTeam" style="padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:0.84rem;width:100%;box-sizing:border-box;background:white;">
+                  <option value="">Select your team...</option>
+                  <option>ACT</option>
+                  <option>Contingent Workforce Management</option>
+                  <option>Demo</option>
+                  <option>Digital</option>
+                  <option>EA/Office Managers</option>
+                  <option>Finance</option>
+                  <option>Graphic Design</option>
+                  <option>Help Desk</option>
+                  <option>Logistics</option>
+                  <option>Marketing</option>
+                  <option>Momenta</option>
+                  <option>PMO</option>
+                  <option>PRO</option>
+                  <option>Prod</option>
+                  <option>PX</option>
+                  <option>SET</option>
+                  <option>Talent Acquisition</option>
+                  <option>Test</option>
+                  <option>Virtual Operators</option>
+                </select>
+              </div>
+              <button class="btn-primary" style="background:var(--charcoal);" onclick="submitResults('named')">Submit with Name →</button>
+            </div>
+          </div>
+
+          <div id="submitConfirm" style="display:none;padding:14px 16px;background:#F0FBF7;border:1px solid var(--emerald);border-radius:var(--radius-sm);margin-top:12px;">
+            <div style="font-weight:700;color:var(--emerald);margin-bottom:4px;">✓ Results submitted — thank you!</div>
+            <div style="font-size:0.84rem;color:var(--text-muted);">Your patterns have been added to the team dataset. You can still print your personal report above.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;padding-bottom:40px;" class="no-print">
       <button class="print-btn" onclick="triggerPrint()">🖨 Print / Save as PDF</button>
       <button class="btn-secondary" onclick="goToScreen('screen-plan')">← Edit My Plan</button>
@@ -943,8 +1438,8 @@ const personas = [
     hearing: ["What about the environmental impact of data centers?","AI is moving faster than regulation.","How do we know this is responsible?","What are the long-term consequences?"],
     scenario: {
       name: "Greer", role: "SET Team",
-      context: "Greer is a member of the SET team known for thoughtful, principled work. They have raised questions in team meetings about data privacy when using AI tools, and they recently forwarded an article to the team about AI and bias in hiring algorithms. They haven't refused to use AI — they've been piloting ChatGPT for some low-stakes drafting. But they slow down in conversations when governance feels unclear. Greer is respected by the team and their skepticism carries weight with others.",
-      quote: "I don't have a problem with AI in principle. I have a problem with AI when we don't know if we're using it responsibly. I've been reading about how organizations are getting this wrong — client data, model bias, hallucinations in deliverables. I want us to be better than that. How do I know we have the right guardrails in place?",
+      context: "Greer is a member of the SET team, supporting sales leads and client engagement work. They are known for thoughtful, principled work and attention to how things land with clients. They have raised questions in team meetings about data privacy when using AI tools, and they recently forwarded an article to the team about AI and bias in hiring algorithms. They have also raised concerns about the environmental footprint of large AI models. They haven't refused to use AI — they've been piloting ChatGPT for some low-stakes drafting. But they slow down in conversations when governance feels unclear. Greer is respected by the team and their skepticism carries weight with others.",
+      quote: "I don't have a problem with AI in principle. I have a problem with AI when we don't know if we're using it responsibly. I've been reading about how organizations are getting this wrong — client data, model bias, hallucinations in deliverables. Not to mention the impact on the environment. I want us to be better than that. How do I know we have the right guardrails in place?",
       question: "What is the most effective leadership response to Greer's concern?"
     },
     choices: [
@@ -956,10 +1451,10 @@ const personas = [
       { letter:'F', label:'Override with Urgency', description:"Emphasize business urgency and competitive pressure to encourage alignment. Acknowledge the concern briefly, then pivot to why the team needs to move faster.", rating:'drift', driftRow:1 }
     ],
     leadershipMoves: [
-      { step:'1', say:'"Greer, that\'s a real question — I don\'t want to redirect away from it. Let\'s think about it together."', why:'Not redirecting immediately is the move. Greer\'s concern is principled — bypassing it signals that governance questions aren\'t welcome. Taking it seriously builds the credibility to lead the conversation somewhere useful.' },
-      { step:'2', say:'"You\'re right that data privacy in AI is still evolving. Here\'s what we know right now, and here\'s where I think we still have open questions."', why:'Naming one tension explicitly rather than offering false certainty is what earns trust. Greer isn\'t looking for reassurance — they\'re looking for honest engagement. Acknowledging the complexity is more credible than closing it down.' },
-      { step:'3', say:'"For the specific work we\'re doing — what would responsible use actually look like to you? What would you need to see to feel confident?"', why:'Asking what responsible use looks like redirects toward co-creation. Greer\'s skepticism becomes a governance contribution rather than a blocker.' },
-      { step:'4', say:'"Would you be willing to draft a responsible-use guideline for the team? Your thinking on this is exactly what we need."', why:'Inviting Greer to be the architect turns their critical thinking into a leadership role. Skepticism channeled is one of the most valuable assets on a team navigating new territory.' }
+      { step:'1', say:'"Greer, that\'s a real question — I don\'t want to redirect away from it. Let\'s think about it together."', why:'Not redirecting immediately is the move. Greer\'s concern spans data privacy, model bias, and environmental impact — these are all legitimate, and bypassing any of them signals that governance questions aren\'t welcome. Taking it seriously is what earns the credibility to move forward.' },
+      { step:'2', say:'"You\'re right that some of this is still evolving — data privacy, environmental cost, model reliability. Here\'s what we know right now, and here\'s where I think we still have genuine open questions."', why:'Naming the tensions explicitly — including the environmental one — rather than offering false certainty is what earns trust. Greer isn\'t looking for reassurance. They\'re looking for honest engagement with the full picture.' },
+      { step:'3', say:'"For the specific work we\'re doing in sales support — what would responsible use actually look like to you? What guardrails would you need to see to feel confident moving forward?"', why:'Bringing it back to the specific context of their work redirects toward co-creation. The environmental concern is real at scale — but at the task level, the question becomes: what does responsible use look like here, in our work, with our clients?' },
+      { step:'4', say:'"Would you be willing to draft a responsible-use guideline for the team? Your thinking on this is exactly what we need."', why:'Inviting Greer to be the architect turns their critical thinking — including the environmental lens — into a leadership contribution. Skepticism channeled is one of the most valuable assets on a team navigating new territory.' }
     ],
     goals: { good:'Define clear guidelines for which client data types are safe to use with AI tools — and run one experiment within those guardrails.', better:'Co-create a team "responsible use checklist" for AI outputs before client delivery. Apply it to one real deliverable.', stretch:'Lead a governance conversation with the team: present one AI risk identified and one mitigation designed. Position them as an internal ethics translator.' },
     discussion: {
@@ -1082,6 +1577,22 @@ const driftPatterns = [
 const personaNames = { id:'Identity Defender', rs:'Responsible Skeptic', sp:'Skill Purist', oo:'Overwhelmed Operator', acc:'Accelerator' };
 const personaEmojis = { id:'🛡', rs:'🔍', sp:'⚙️', oo:'⏳', acc:'⚡' };
 
+const teamMantras = {
+  id:  'My role as a leader is to slow down before I redirect. Their hesitation is about meaning, not resistance — and meaning is worth exploring first.',
+  rs:  'My role as a leader is to take the question seriously. Their skepticism is a governance contribution waiting to happen — not a blocker to manage.',
+  sp:  'My role as a leader is to honor the craft before I introduce the tool. Their standards are an asset — my job is to show AI can serve them, not replace them.',
+  oo:  'My role as a leader is to remove something before I add anything. They don\'t need inspiration right now — they need relief.',
+  acc: 'My role as a leader is to channel the energy, not just celebrate it. Speed without direction creates friction — my job is to aim it.'
+};
+
+const selfMantras = {
+  id:  'As a leader, I can name what I\'m protecting — and separate it from what I\'m building. My expertise doesn\'t disappear when AI enters the room.',
+  rs:  'As a leader, I can bring my questions into the open rather than letting them slow me down quietly. My caution makes the team\'s adoption more credible.',
+  sp:  'As a leader, I can set the standard for what excellent AI-assisted work looks like — and model that my judgment is still the final word.',
+  oo:  'As a leader, I can start smaller than feels significant. One task replaced is still movement — and movement is what I\'m asking of my team.',
+  acc: 'As a leader, I can make sure I bring my team with me. The goal isn\'t to move fast — it\'s to move together.'
+};
+
 // ══════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════
@@ -1112,15 +1623,30 @@ window.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════════════════════
 // PROGRESS
 // ══════════════════════════════════════════════════════════
+const SCREEN_LABELS = ['Home','Assess','Framework','Sc. 1','Sc. 2','Sc. 3','Sc. 4','Sc. 5','Plan','Report'];
+
 function buildProgressSteps() {
   const el = document.getElementById('progressSteps');
-  el.innerHTML = SCREENS.map((_,i) => `<div class="progress-step" id="ps-${i}"></div>`).join('');
+  el.innerHTML = SCREENS.map((_, i) => `
+    <div class="progress-step" id="ps-${i}">
+      <div class="progress-step-bar"></div>
+      <div class="progress-step-lbl">${SCREEN_LABELS[i] || ''}</div>
+    </div>`).join('');
 }
 
 function updateProgress() {
   const idx = SCREENS.indexOf(S.currentScreen);
-  const labels = ['Home', 'Assessment', 'Framework', ...personas.map(p=>p.name), '30-Day Plan', 'Report'];
-  document.getElementById('progressLabel').textContent = labels[idx] || '';
+
+  // Back button — hidden on home screen
+  const backBtn = document.getElementById('progressBackBtn');
+  if (backBtn) {
+    if (idx <= 0) {
+      backBtn.classList.add('hidden');
+    } else {
+      backBtn.classList.remove('hidden');
+    }
+  }
+
   const badge = document.getElementById('modeBadge');
   if (!['screen-intro','screen-assess','screen-framework'].includes(S.currentScreen)) {
     badge.style.display = '';
@@ -1129,11 +1655,21 @@ function updateProgress() {
   } else {
     badge.style.display = 'none';
   }
-  SCREENS.forEach((_,i) => {
+  SCREENS.forEach((_, i) => {
     const el = document.getElementById(`ps-${i}`);
     if (!el) return;
     el.className = 'progress-step' + (i < idx ? ' done' : i === idx ? ' active' : '');
   });
+}
+
+function progressGoBack() {
+  const i = SCREENS.indexOf(S.currentScreen);
+  if (i > 0) goToScreen(SCREENS[i - 1]);
+}
+
+function goHomeKeepState() {
+  // Navigate to home without resetting any state — work is preserved
+  goToScreen('screen-intro');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1208,28 +1744,31 @@ function buildPersonaScreen(p, idx) {
 
   return `
 <div class="screen" id="screen-${p.id}">
-  <div class="persona-header">
+  <div class="persona-header" style="background:${p.color};">
     <div class="container" style="padding-top:0;padding-bottom:0;">
-      <div class="p-num">Persona ${idx+1} of ${personas.length}</div>
-      <span class="p-emoji">${p.emoji}</span>
-      <h2>${p.name}</h2>
-      <p class="p-tagline">${p.tagline}</p>
-      <div class="p-tags">${p.tags.map(t=>`<span class="p-tag">${t}</span>`).join('')}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;">
+        <!-- Left: Persona identity -->
+        <div>
+          <div class="p-num">Persona ${idx+1} of ${personas.length}</div>
+          <span class="p-emoji">${p.emoji}</span>
+          <h2>${p.name}</h2>
+          <p class="p-tagline">${p.tagline}</p>
+          <div class="p-tags">${p.tags.map(t=>`<span class="p-tag">${t}</span>`).join('')}</div>
+        </div>
+        <!-- Right: What you're seeing -->
+        <div style="padding-top:8px;">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-bottom:8px;">What you're seeing with this persona</div>
+          <p style="font-size:0.86rem;color:rgba(255,255,255,0.88);line-height:1.65;margin-bottom:12px;">${p.seeing}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">${p.hearing.map(h=>`<div style="background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 12px;font-size:0.76rem;font-style:italic;color:rgba(255,255,255,0.82);">"${h}"</div>`).join('')}</div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div style="background:var(--white);padding:0 0 40px;">
   <div class="container">
 
-    <div style="margin-top:22px;">
-      <button class="acc-toggle" onclick="toggleAcc('ctx-${p.id}')">What you're seeing with this persona <span id="ctx-${p.id}-arrow">▼</span></button>
-      <div class="acc-body" id="ctx-${p.id}">
-        <p style="font-size:0.86rem;color:var(--charcoal);margin-bottom:10px;">${p.seeing}</p>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;">${p.hearing.map(h=>`<div style="background:var(--light-bg);border-radius:20px;padding:5px 13px;font-size:0.78rem;font-style:italic;color:var(--charcoal);">"${h}"</div>`).join('')}</div>
-      </div>
-    </div>
-
-    <div class="scenario-card" style="margin-top:18px;">
+    <div class="scenario-card" style="margin-top:22px;">
       <div class="scene-label">📋 Scenario — ${p.scenario.name}, ${p.scenario.role}</div>
       <h3 style="margin-bottom:10px;">The Situation</h3>
       <p class="scene-ctx">${p.scenario.context}</p>
@@ -1238,15 +1777,25 @@ function buildPersonaScreen(p, idx) {
     </div>
 
     ${!isSolo ? `
-    <div style="background:#F0F4FA;border:1px solid #C7D8F0;border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;">
-      <span style="font-size:1.1rem;flex-shrink:0;">💬</span>
-      <div>
-        <div style="font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--blue);margin-bottom:5px;">Team Discussion — recommended 10 minutes</div>
-        <div style="font-size:0.84rem;color:var(--charcoal);line-height:1.6;">Start by sharing gut instincts before reading the options. Then read through together. Then have a final discussion and each person selects individually.</div>
+    <div class="timer-block timer-block-1" id="timer1-block-${p.id}">
+      <div class="timer-header">
+        <div class="timer-label">💬 Team Discussion — recommended 5 minutes</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="timer-display" id="timer1-display-${p.id}">5:00</div>
+          <div class="timer-complete-badge" id="timer1-badge-${p.id}">✓ Done</div>
+        </div>
+      </div>
+      <p class="timer-instructions">Share your gut reactions to the scenario before reading the options. What is your instinct telling you? When the timer ends — or when you're ready — the response options will appear.</p>
+      <div class="timer-btn-row">
+        <button class="timer-start-btn" id="timer1-btn-${p.id}" onclick="startTimer1('${p.id}')">▶ Start the Timer</button>
+        <button class="timer-skip-btn" onclick="skipTimer1('${p.id}')">Skip to Selection →</button>
+      </div>
+      <div class="timer-progress" id="timer1-progress-${p.id}">
+        <div class="timer-progress-fill" id="timer1-fill-${p.id}" style="width:100%"></div>
       </div>
     </div>` : ''}
 
-    <div class="decision-card">
+    <div class="decision-card" id="decision-card-${p.id}" style="${!isSolo ? 'display:none;' : ''}">
       <div style="margin-bottom:20px;">
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:14px;">
           <div style="padding:12px 14px;background:#FFF5FB;border-right:1px solid var(--border);">
@@ -1298,7 +1847,22 @@ function buildPersonaScreen(p, idx) {
     </div>
 
     <div class="reflection-section" id="reflect-${p.id}" style="${dbg}">
-      <div class="ref-label ${dcolor}">${dlabel}</div>
+      ${!isSolo ? `
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <div class="ref-label ${dcolor}" style="margin-bottom:0;">💬 Team Discussion — recommended 5 minutes</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="timer-display" id="timer2-display-${p.id}" style="font-size:1.2rem;">5:00</div>
+          <div class="timer-complete-badge" id="timer2-badge-${p.id}">✓ Done</div>
+        </div>
+      </div>
+      <div class="timer-btn-row" id="timer2-controls-${p.id}" style="margin-bottom:14px;">
+        <button class="timer-start-btn" id="timer2-btn-${p.id}" onclick="startTimer2('${p.id}')">▶ Start Discussion Timer</button>
+        <button class="timer-skip-btn" onclick="skipTimer2('${p.id}')">Skip Timer</button>
+      </div>
+      <div class="timer-progress" id="timer2-progress-${p.id}" style="margin-bottom:14px;">
+        <div class="timer-progress-fill" id="timer2-fill-${p.id}" style="width:100%"></div>
+      </div>` :
+      `<div class="ref-label ${dcolor}">${dlabel}</div>`}
       <ul>${dqs.map(q=>`<li>${q}</li>`).join('')}</ul>
       <textarea class="reflection-textarea" id="notes-${p.id}" placeholder="${isSolo?'Your reflections...':'Your notes from the group discussion...'}" oninput="saveNote('${p.id}')"></textarea>
     </div>
@@ -1507,6 +2071,218 @@ function flipCard(pid, idx) {
   if (card) card.classList.toggle('flipped');
 }
 
+// ══════════════════════════════════════════════════════════
+// PERSONA CHIP POPUPS
+// ══════════════════════════════════════════════════════════
+const chipMindsets = {
+  id:  {
+    name:'Identity Defender', emoji:'🛡',
+    tagline:'"If AI can do this, what makes me valuable?"',
+    from:'If AI can do this, what makes me valuable?',
+    to:'My value isn\'t in the task — it\'s in the judgment, the relationships, and the things AI can\'t replicate.'
+  },
+  rs:  {
+    name:'Responsible Skeptic', emoji:'🔍',
+    tagline:'"I need to know this is being used responsibly."',
+    from:'I can\'t move forward until I know this is being used responsibly.',
+    to:'I can engage carefully and still move — my questions are a contribution, not a condition.'
+  },
+  sp:  {
+    name:'Skill Purist', emoji:'⚙️',
+    tagline:'"I don\'t want AI thinking for me."',
+    from:'If I let AI do the thinking, I\'ll lose the skill that defines me.',
+    to:'AI drafts. I evaluate, refine, and elevate. My judgment is still the product.'
+  },
+  oo:  {
+    name:'Overwhelmed Operator', emoji:'⏳',
+    tagline:'"I barely have time to do my job as it is."',
+    from:'I don\'t have the bandwidth to take on one more thing right now.',
+    to:'AI isn\'t one more thing — it\'s a way to take something off the list.'
+  },
+  acc: {
+    name:'Accelerator', emoji:'⚡',
+    tagline:'"Why aren\'t we doing more of this?"',
+    from:'I don\'t understand why everyone isn\'t moving as fast as I am.',
+    to:'The goal isn\'t to move fast — it\'s to move together. My energy is most valuable when it lifts the whole team.'
+  },
+};
+
+const chipColors = { id:'#C8006E', rs:'#005B9A', sp:'#007A5E', oo:'#7B5EA7', acc:'#D4670A' };
+
+function showChipPopup(pid) {
+  const d = chipMindsets[pid];
+  const color = chipColors[pid];
+  const popup = document.getElementById('chipPopup');
+  popup.style.background = color;
+  document.getElementById('chipPopupName').textContent = d.emoji + ' ' + d.name;
+  document.getElementById('chipPopupTitle').textContent = d.tagline;
+  document.getElementById('chipPopupFrom').textContent = '"' + d.from + '"';
+  document.getElementById('chipPopupTo').textContent = '"' + d.to + '"';
+  document.getElementById('chipPopupOverlay').classList.add('show');
+}
+
+function hideChipPopup() {
+  document.getElementById('chipPopupOverlay').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+function submitResults(type) {
+  const ranked = getRankedDrift();
+  const rankedI = getRankedInstinct();
+  // Dominant drift excludes Leadership Move (only drift rows 1-5)
+  const topDrift = ranked[0]?.count > 0 ? ranked[0].name : 'None';
+  const topInstinct = rankedI[0]?.count > 0 ? rankedI[0].name : 'None';
+
+  const drift_names = {0:'Leadership Move',1:'Push Too Fast',2:'Over-Reassure',3:'Avoid the Topic',4:'Debate Instead of Explore',5:'Rescue'};
+
+  function choiceLabel(pid) {
+    const sel = S.selections[pid];
+    if (!sel) return 'Not completed';
+    return drift_names[sel.driftRow] || 'Not completed';
+  }
+
+  // Mindset shift — from dominant DRIFT pattern only (not LM)
+  const mindshift = topDrift !== 'None'
+    ? driftPatterns.find(d=>d.name===topDrift)?.to || ''
+    : '';
+
+  // Commitment fields
+  const commitSurface   = document.getElementById('commitSurface')?.value || '';
+  const commitExperiment= document.getElementById('commitExperiment')?.value || '';
+  const commitFollowUp  = document.getElementById('commitFollowUp')?.value || '';
+
+  // Impact checkboxes
+  function cb(val) {
+    const el = document.querySelector(`input[value="${val}"]`);
+    return el && el.checked ? 'true' : 'false';
+  }
+
+  const name = type === 'named' ? (document.getElementById('submitName')?.value || '') : 'Anonymous';
+  const team = type === 'named' ? (document.getElementById('submitTeam')?.value || '') : '';
+
+  const formBase = 'https://app.smartsheet.com/b/form/019d8db73a2d7c1589a3d698e6a83723';
+
+  const params = new URLSearchParams({
+    'Submission Date':            new Date().toLocaleDateString('en-US'),
+    'Submission Type':            type === 'named' ? 'Named' : 'Anonymous',
+    'Participant Name':           name,
+    'Team':                       team,
+    'Team Persona':               S.plan.team ? personaNames[S.plan.team] : '',
+    'Self Persona':               S.plan.self ? personaNames[S.plan.self] : '',
+    'Dominant Drift (Simulation)':topDrift,
+    'Dominant Instinct (Self-Check)': topInstinct,
+    'Identity Defender Choice':   choiceLabel('id'),
+    'Responsible Skeptic Choice': choiceLabel('rs'),
+    'Skill Purist Choice':        choiceLabel('sp'),
+    'Overwhelmed Operator Choice':choiceLabel('oo'),
+    'Accelerator Choice':         choiceLabel('acc'),
+    'Mindset Shift (To)':         mindshift,
+    'What I Want to Surface':     commitSurface,
+    'AI Experiment Planned':      commitExperiment,
+    'Follow-Up Plan':             commitFollowUp,
+    'Impact: Team Members Initiating AI':     cb('team-1') === 'true' ? 'Yes' : 'No',
+    'Impact: Conversations Shifting to How':  cb('team-2') === 'true' ? 'Yes' : 'No',
+    'Impact: Manual Steps Replaced':          cb('team-3') === 'true' ? 'Yes' : 'No',
+    'Impact: Quality Discussions on Judgment':cb('team-4') === 'true' ? 'Yes' : 'No',
+    'Impact: Peers Sharing AI Practices':     cb('team-5') === 'true' ? 'Yes' : 'No',
+    'Impact: I Initiate AI Conversations':    cb('self-1') === 'true' ? 'Yes' : 'No',
+    'Impact: I Ask Before I Advise':          cb('self-2') === 'true' ? 'Yes' : 'No',
+    'Impact: I Build Capability Not Reassurance': cb('self-3') === 'true' ? 'Yes' : 'No',
+    'Impact: I Follow Up on AI Experiments':  cb('self-4') === 'true' ? 'Yes' : 'No',
+    'Impact: I Hold Steady Direction':        cb('self-5') === 'true' ? 'Yes' : 'No',
+  });
+
+  if (formBase === 'REPLACE_WITH_SMARTSHEET_FORM_URL') {
+    document.getElementById('submitOptions').style.display = 'none';
+    document.getElementById('submitConfirm').style.display = 'block';
+    return;
+  }
+
+  window.open(`${formBase}?${params.toString()}`, '_blank');
+  document.getElementById('submitOptions').style.display = 'none';
+  document.getElementById('submitConfirm').style.display = 'block';
+}
+
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+const timerState = {};
+
+function getTS(pid) {
+  if (!timerState[pid]) timerState[pid] = { t1:null, t2:null, t1secs:300, t2secs:300 };
+  return timerState[pid];
+}
+
+function fmtTime(secs) {
+  const m = Math.floor(secs/60), s = secs%60;
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function startTimer1(pid) {
+  const ts = getTS(pid);
+  if (ts.t1) return;
+  const btn = document.getElementById(`timer1-btn-${pid}`);
+  if (btn) { btn.textContent = '⏳ Running...'; btn.classList.add('running'); btn.disabled = true; }
+  ts.t1 = setInterval(() => {
+    ts.t1secs--;
+    const disp = document.getElementById(`timer1-display-${pid}`);
+    const fill = document.getElementById(`timer1-fill-${pid}`);
+    if (disp) { disp.textContent = fmtTime(ts.t1secs); if (ts.t1secs <= 30) disp.classList.add('urgent'); }
+    if (fill) fill.style.width = `${(ts.t1secs/300)*100}%`;
+    if (ts.t1secs <= 0) { clearInterval(ts.t1); ts.t1 = null; revealOptions(pid); }
+  }, 1000);
+}
+
+function skipTimer1(pid) {
+  const ts = getTS(pid);
+  if (ts.t1) { clearInterval(ts.t1); ts.t1 = null; }
+  revealOptions(pid);
+}
+
+function revealOptions(pid) {
+  const badge = document.getElementById(`timer1-badge-${pid}`);
+  if (badge) badge.classList.add('show');
+  const block = document.getElementById(`timer1-block-${pid}`);
+  if (block) { const btns = block.querySelectorAll('button'); btns.forEach(b => b.style.display='none'); }
+  const fill = document.getElementById(`timer1-fill-${pid}`);
+  if (fill) fill.style.width = '0%';
+  const dc = document.getElementById(`decision-card-${pid}`);
+  if (dc) { dc.style.display = 'block'; setTimeout(() => dc.scrollIntoView({behavior:'smooth',block:'start'}), 150); }
+}
+
+function startTimer2(pid) {
+  const ts = getTS(pid);
+  if (ts.t2) return;
+  const btn = document.getElementById(`timer2-btn-${pid}`);
+  if (btn) { btn.textContent = '⏳ Running...'; btn.classList.add('running'); btn.disabled = true; }
+  ts.t2 = setInterval(() => {
+    ts.t2secs--;
+    const disp = document.getElementById(`timer2-display-${pid}`);
+    const fill = document.getElementById(`timer2-fill-${pid}`);
+    if (disp) { disp.textContent = fmtTime(ts.t2secs); if (ts.t2secs <= 30) disp.classList.add('urgent'); }
+    if (fill) fill.style.width = `${(ts.t2secs/300)*100}%`;
+    if (ts.t2secs <= 0) { clearInterval(ts.t2); ts.t2 = null; showTimerPopup(); }
+  }, 1000);
+}
+
+function skipTimer2(pid) {
+  const ts = getTS(pid);
+  if (ts.t2) { clearInterval(ts.t2); ts.t2 = null; }
+  const badge = document.getElementById(`timer2-badge-${pid}`);
+  if (badge) badge.classList.add('show');
+  const controls = document.getElementById(`timer2-controls-${pid}`);
+  if (controls) controls.style.display = 'none';
+}
+
+function showTimerPopup() {
+  document.getElementById('timerPopup')?.classList.add('show');
+}
+
+function dismissTimerPopup() {
+  document.getElementById('timerPopup')?.classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════════
 function toggleInstinct(pid, letter, driftRow) {
   if (!S.instincts[pid]) S.instincts[pid] = {};
   const row = document.getElementById(`choice-${pid}-${letter}`);
@@ -1680,25 +2456,29 @@ function buildImpactDebriefHTML() {
     { val:'self-5', text:'I hold steady direction without escalating pressure' },
   ];
 
-  function renderItems(items) {
-    return items.map(item => {
+  function renderCheckedOnly(items) {
+    const checked = items.filter(item => {
       const cb = document.querySelector(`input[value="${item.val}"]`);
-      const checked = cb && cb.checked;
-      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border:1px solid ${checked?'var(--magenta)':'var(--border)'};border-radius:var(--radius-sm);background:${checked?'#FFF5FB':'var(--light-bg)'};margin-bottom:6px;font-size:0.84rem;color:var(--charcoal);line-height:1.5;">
-        <span style="color:${checked?'var(--magenta)':'var(--border)'};font-weight:700;flex-shrink:0;margin-top:1px;">${checked?'✓':'○'}</span>
+      return cb && cb.checked;
+    });
+    if (checked.length === 0) {
+      return `<p style="font-size:0.82rem;color:var(--text-muted);font-style:italic;">None selected — return to Step 6 in the 30-Day Plan.</p>`;
+    }
+    return checked.map(item => `
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 12px;border:1px solid var(--magenta);border-radius:var(--radius-sm);background:#FFF5FB;margin-bottom:6px;font-size:0.84rem;color:var(--charcoal);line-height:1.5;">
+        <span style="color:var(--magenta);font-weight:700;flex-shrink:0;margin-top:1px;">✓</span>
         <span>${item.text}</span>
-      </div>`;
-    }).join('');
+      </div>`).join('');
   }
 
   return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
     <div>
       <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">With My Team</div>
-      ${renderItems(teamItems)}
+      ${renderCheckedOnly(teamItems)}
     </div>
     <div>
       <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;">For Myself</div>
-      ${renderItems(selfItems)}
+      ${renderCheckedOnly(selfItems)}
     </div>
   </div>`;
 }
@@ -1715,26 +2495,21 @@ function setupDebrief() {
   const top = ranked[0];
   const topInstinct = rankedInstinct[0];
 
-  // persona results
-  const prCards = personas.map(p => {
-    const sel = S.selections[p.id];
-    const choice = sel ? p.choices.find(c=>c.letter===sel.letter) : null;
-    const cls = !choice ? 'pr-skip' : choice.rating==='best' ? 'pr-best' : choice.rating==='ok' ? 'pr-close' : 'pr-miss';
-    const pill = !choice ? '—' : choice.rating==='best' ? 'Leadership Move' : choice.rating==='ok' ? 'Partially Effective' : 'Drift Pattern';
-    return `<div class="pr-card ${cls}" style="${choice?.rating==='best' ? `border-top-color:${p.color}` : ''}">
-      <div class="pr-emoji">${p.emoji}</div>
-      <div class="pr-name">${p.name}</div>
-      <span class="pr-pill" style="${choice?.rating==='best' ? `background:${p.color}22;color:${p.color}` : ''}">${pill}</span>
-    </div>`;
-  }).join('');
-
+  // persona results — still built for submit data but NOT shown in report
   const attempted = Object.keys(S.selections).length;
-  let scoreMsg = '';
-  if (attempted === 0) scoreMsg = 'Complete the scenarios to see your patterns — every choice adds to the picture.';
-  else if (attempted < 5) scoreMsg = `${attempted} of ${personas.length} scenarios completed. Your patterns are starting to emerge.`;
-  else scoreMsg = 'All five personas explored. The analysis below reflects your leadership tendencies — a starting point, not a verdict.';
 
-  // drift ranked HTML helper
+  // drift ranked HTML helper — includes Leadership Move row
+  const lmCount = personas.filter(p => {
+    const sel = S.selections[p.id];
+    return sel && sel.rating === 'best';
+  }).length;
+
+  const lmInstinctCount = personas.reduce((sum, p) => {
+    const inst = S.instincts[p.id] || {};
+    const bestLetter = p.choices.find(c=>c.driftRow===0)?.letter;
+    return sum + (bestLetter && inst[bestLetter] ? 1 : 0);
+  }, 0);
+
   function driftRowHTML(d, max, color) {
     const pct = max > 0 ? Math.round((d.count/max)*100) : 0;
     return `<div class="ic-row">
@@ -1744,17 +2519,28 @@ function setupDebrief() {
     </div>`;
   }
 
-  const simDriftHTML = ranked.map(d => driftRowHTML(d, maxCount, 'var(--charcoal)')).join('');
-  const instinctDriftHTML = rankedInstinct.map(d => driftRowHTML(d, maxInstinct, 'var(--magenta)')).join('');
+  function lmRowHTML(count, max, color) {
+    const pct = max > 0 ? Math.round((count/max)*100) : 0;
+    return `<div class="ic-row" style="border-top:1px solid var(--border);margin-top:6px;padding-top:6px;">
+      <div class="ic-row-name" style="font-weight:600;">✓ Leadership Move</div>
+      <div class="ic-bar-wrap"><div class="ic-bar-bg"><div class="ic-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>
+      <div class="ic-count" style="color:${color};">${count}×</div>
+    </div>`;
+  }
 
-  const anyInstinctData = Object.values(S.instinctCounts).some(v => v > 0);
-  const anyDriftData = Object.values(S.driftCounts).some(v => v > 0);
+  const simDriftHTML = ranked.map(d => driftRowHTML(d, maxCount, 'var(--charcoal)')).join('') +
+    lmRowHTML(lmCount, 5, 'var(--emerald)');
+  const instinctDriftHTML = rankedInstinct.map(d => driftRowHTML(d, maxInstinct, 'var(--magenta)')).join('') +
+    lmRowHTML(lmInstinctCount, 5, 'var(--emerald)');
 
-  // gap analysis — career coach voice, specific and dynamic
+  const anyInstinctData = Object.values(S.instinctCounts).some(v => v > 0) || lmInstinctCount > 0;
+  const anyDriftData = Object.values(S.driftCounts).some(v => v > 0) || lmCount > 0;
+
+  // gap note — uses only drift patterns (not LM) for dominant pattern names
   let gapNote = '';
   if (anyInstinctData || anyDriftData) {
-    const simTop = anyDriftData ? top.name : null;
-    const instTop = anyInstinctData ? topInstinct.name : null;
+    const simTop = (top && top.count > 0) ? top.name : null;
+    const instTop = (topInstinct && topInstinct.count > 0) ? topInstinct.name : null;
 
     if (simTop && instTop && simTop === instTop) {
       gapNote = `<strong>Notice something.</strong> When you had to select one response, your most frequent pattern was <strong>${simTop}</strong>. And when you checked your honest first instincts, the same pattern showed up on top. That alignment isn't a coincidence — it's a well-worn groove. The fact that it appears in both places means it's not just a situational reflex. It's your default way of entering these conversations. The question worth sitting with: <em>where does ${simTop} serve you, and where does it cost you?</em>`;
@@ -1816,27 +2602,31 @@ function setupDebrief() {
     .join('');
 
   el.innerHTML = `
-    <!-- 1. Your Choices -->
-    <div class="report-card">
-      <h3>Your Choices Across All Five Personas</h3>
-      <p class="report-sub">${attempted}/${personas.length} scenarios completed · ${scoreMsg}</p>
-      <div class="persona-results-row">${prCards}</div>
-    </div>
-
-    <!-- 2. Step 1+2: Team & Self -->
+    <!-- Step 1+2: Team & Self -->
     <div class="report-card">
       <div class="step-badge"><span class="sn">1</span> STEP 1</div>
       <h3>Where Do You See Your Team?</h3>
-      <p class="report-sub" style="margin-bottom:10px;">Most present persona on your team:</p>
-      <div style="font-size:1rem;font-weight:600;">${teamPn}</div>
+      <p class="report-sub" style="margin-bottom:12px;">The persona most present on your team right now.</p>
+      ${S.plan.team ? `
+        <div class="persona-selected-name">${personaEmojis[S.plan.team]} ${personaNames[S.plan.team]}</div>
+        <div class="so-what-block">
+          <div class="so-what-label">So what?</div>
+          <div class="so-what-text">${teamMantras[S.plan.team]}</div>
+        </div>` :
+        `<div class="persona-not-selected">No persona selected — return to Step 1 in the 30-Day Plan.</div>`}
     </div>
 
     <div class="report-card">
       <div class="step-badge"><span class="sn">2</span> STEP 2</div>
       <h3>Where Do You See Yourself?</h3>
-      <p class="report-sub" style="margin-bottom:10px;">Which persona shows up in you:</p>
-      <div style="font-size:1rem;font-weight:600;">${selfPn}</div>
-      <div class="self-check-note" style="margin-top:14px;">💡 The most powerful signal you can send your team is your own visible experimentation.</div>
+      <p class="report-sub" style="margin-bottom:12px;">The persona that shows up in you.</p>
+      ${S.plan.self ? `
+        <div class="persona-selected-name">${personaEmojis[S.plan.self]} ${personaNames[S.plan.self]}</div>
+        <div class="so-what-block">
+          <div class="so-what-label">So what?</div>
+          <div class="so-what-text">${selfMantras[S.plan.self]}</div>
+        </div>` :
+        `<div class="persona-not-selected">No persona selected — return to Step 2 in the 30-Day Plan.</div>`}
     </div>
 
     <!-- 3. Patterns analysis (instinct comparison only) -->
@@ -2051,21 +2841,27 @@ function buildPrintRoot() {
         <div class="print-impact-col">
           <h4>With My Team</h4>
           <ul>
-            <li>Team members initiating AI use without being prompted</li>
-            <li>Conversations shifting from "Should we?" to "How should we?"</li>
-            <li>Manual steps replaced with documented AI workflows</li>
-            <li>Quality discussions focused on judgment, not just first drafts</li>
-            <li>Peers sharing AI practices across the team</li>
+            ${[
+              {val:'team-1', text:'Team members initiating AI use without being prompted'},
+              {val:'team-2', text:'Conversations shifting from "Should we?" to "How should we?"'},
+              {val:'team-3', text:'Manual steps replaced with documented AI workflows'},
+              {val:'team-4', text:'Quality discussions focused on judgment, not just first drafts'},
+              {val:'team-5', text:'Peers sharing AI practices across the team'},
+            ].filter(i => { const cb = document.querySelector('input[value="'+i.val+'"]'); return cb && cb.checked; })
+             .map(i => `<li>${i.text}</li>`).join('') || '<li style="color:#888;font-style:italic;">None selected.</li>'}
           </ul>
         </div>
         <div class="print-impact-col">
           <h4>For Myself</h4>
           <ul>
-            <li>I initiate AI conversations proactively</li>
-            <li>I ask before I advise</li>
-            <li>I move from reassurance to capability-building</li>
-            <li>I follow up on agreed AI experiments</li>
-            <li>I hold steady direction without escalating pressure</li>
+            ${[
+              {val:'self-1', text:'I initiate AI conversations proactively'},
+              {val:'self-2', text:'I ask before I advise — understand before I recommend'},
+              {val:'self-3', text:'I move from reassurance to capability-building'},
+              {val:'self-4', text:'I follow up on agreed AI experiments'},
+              {val:'self-5', text:'I hold steady direction without escalating pressure'},
+            ].filter(i => { const cb = document.querySelector('input[value="'+i.val+'"]'); return cb && cb.checked; })
+             .map(i => `<li>${i.text}</li>`).join('') || '<li style="color:#888;font-style:italic;">None selected.</li>'}
           </ul>
         </div>
       </div>
@@ -2074,8 +2870,9 @@ function buildPrintRoot() {
 
     ${notesPrint ? `<div class="print-step"><div class="print-step-badge">My Notes</div><h3>Reflections from the Simulation</h3>${notesPrint}</div>` : ''}
 
-    <div style="border-top:3px solid #C8006E;padding-top:12px;margin-top:20px;text-align:center;">
-      <div style="font-family:'DM Serif Display',serif;font-size:1rem;color:#2C2C2E;">"Every great AI conversation starts with one question — and one person who feels heard."</div>
+    <div style="border-top:3px solid #C8006E;padding-top:16px;margin-top:20px;text-align:center;">
+      <div style="font-family:'DM Serif Display',serif;font-size:1.05rem;color:#2C2C2E;max-width:480px;margin:0 auto 8px;line-height:1.5;">"Every great AI conversation starts with one question — and one person who feels heard."</div>
+      <div style="font-size:0.75rem;color:#8A847C;font-style:normal;letter-spacing:0.03em;">Leading AI Conversations, Manager Field Guide</div>
     </div>
 
     <div class="print-footer">
@@ -2104,6 +2901,12 @@ function restartSim() {
     instincts:{},
     notes:{}, plan:{team:null,self:null}, currentScreen:'screen-intro'
   };
+  // Clear all running timers
+  Object.values(timerState).forEach(ts => {
+    if (ts.t1) clearInterval(ts.t1);
+    if (ts.t2) clearInterval(ts.t2);
+  });
+  Object.keys(timerState).forEach(k => delete timerState[k]);
   document.getElementById('modeTeam').className = 'mode-card selected';
   document.getElementById('modeSolo').className = 'mode-card';
   buildPersonaScreens();
