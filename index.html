@@ -660,10 +660,16 @@ h3{font-size:1.15rem;}
         <div id="chartChoices" style="overflow-x:auto;"></div>
       </div>
 
-      <!-- Row 4: Impact selections -->
-      <div class="dash-card" style="margin-bottom:16px;">
-        <div class="dash-card-title">Impact Goals Selected</div>
-        <div id="chartImpact"></div>
+      <!-- Row 4: Impact selections split by team/personal -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="dash-card">
+          <div class="dash-card-title">Impact Goals — With My Team</div>
+          <div id="chartImpactTeam"></div>
+        </div>
+        <div class="dash-card">
+          <div class="dash-card-title">Impact Goals — For Myself</div>
+          <div id="chartImpactSelf"></div>
+        </div>
       </div>
 
       <!-- Row 5: Named submissions table (only in named mode) -->
@@ -694,8 +700,8 @@ h3{font-size:1.15rem;}
 </style>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// DASHBOARD
+// ══ EMBEDDED SMARTSHEET DATA (refresh by asking Claude to regenerate) ══
+window.DASH_EMBEDDED_DATA = [{"date":"4/15/2026","type":"Anonymous","name":"Anonymous","team":"Test","teamPersona":"Overwhelmed Operator","selfPersona":"Accelerator","dominantDrift":"Avoid the Topic","dominantInstinct":"Over-Reassure","idChoice":"Leadership Move","rsChoice":"Rescue","spChoice":"Avoid the Topic","ooChoice":"Leadership Move","accChoice":"Leadership Move","mindset":"I name the tension directly — discomfort in the conversation is better than silence that stalls progress.","surface":"test","experiment":"test","followUp":"test","impTeam1":"Yes","impTeam2":"No","impTeam3":"Yes","impTeam4":"No","impTeam5":"Yes","impSelf1":"No","impSelf2":"Yes","impSelf3":"No","impSelf4":"No","impSelf5":"Yes"}];
 // ══════════════════════════════════════════════════════════
 const DASH_PWD = 'ElyaBottiger';
 const SHEET_ID = '2043670560722820';
@@ -734,69 +740,84 @@ async function loadDashData() {
   document.getElementById('dashLoading').style.display = 'block';
   document.getElementById('dashContent').style.display = 'none';
   try {
-    // Smartsheet API supports CORS — call directly with Authorization header
+    // Try direct Smartsheet API call (works in some browsers/environments)
     const res = await fetch(`https://api.smartsheet.com/2.0/sheets/${SHEET_ID}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${dashToken}`,
         'Accept': 'application/json'
-      },
-      mode: 'cors'
+      }
     });
-    if (res.status === 401) throw new Error('Invalid token — please check your Smartsheet API token');
+
+    if (res.status === 401) throw new Error('Invalid API token — please check and try again');
     if (res.status === 403) throw new Error('Access denied — your token may not have permission to read this sheet');
-    if (!res.ok) throw new Error(`API error ${res.status} — please retry`);
+    if (!res.ok) throw new Error('cors');
+
     const json = await res.json();
+    parseDashJson(json);
 
-    // Build column index
-    const colIdx = {};
-    json.columns.forEach(c => colIdx[c.title] = c.id);
-
-    // Parse rows
-    dashData = (json.rows || []).map(row => {
-      const get = (title) => {
-        const col = json.columns.find(c => c.title === title);
-        if (!col) return '';
-        const cell = row.cells.find(c => c.columnId === col.id);
-        return cell?.displayValue || cell?.value || '';
-      };
-      return {
-        date: get('Submission Date'),
-        type: get('Submission Type'),
-        name: get('Participant Name'),
-        team: get('Team'),
-        teamPersona: get('Team Persona'),
-        selfPersona: get('Self Persona'),
-        dominantDrift: get('Dominant Drift (Simulation)'),
-        dominantInstinct: get('Dominant Instinct (Self-Check)'),
-        idChoice: get('Identity Defender Choice'),
-        rsChoice: get('Responsible Skeptic Choice'),
-        spChoice: get('Skill Purist Choice'),
-        ooChoice: get('Overwhelmed Operator Choice'),
-        accChoice: get('Accelerator Choice'),
-        mindset: get('Mindset Shift (To)'),
-        surface: get('What I Want to Surface'),
-        experiment: get('AI Experiment Planned'),
-        followUp: get('Follow-Up Plan'),
-        impTeam1: get('Impact: Team Members Initiating AI'),
-        impTeam2: get('Impact: Conversations Shifting to How'),
-        impTeam3: get('Impact: Manual Steps Replaced'),
-        impTeam4: get('Impact: Quality Discussions on Judgment'),
-        impTeam5: get('Impact: Peers Sharing AI Practices'),
-        impSelf1: get('Impact: I Initiate AI Conversations'),
-        impSelf2: get('Impact: I Ask Before I Advise'),
-        impSelf3: get('Impact: I Build Capability Not Reassurance'),
-        impSelf4: get('Impact: I Follow Up on AI Experiments'),
-        impSelf5: get('Impact: I Hold Steady Direction'),
-      };
-    });
-
-    applyFilters();
-    document.getElementById('dashLoading').style.display = 'none';
-    document.getElementById('dashContent').style.display = 'block';
   } catch(e) {
-    document.getElementById('dashLoading').innerHTML = `<div style="color:#FF6B6B;font-size:0.9rem;">⚠️ ${e.message}</div><button onclick="loadDashData()" style="margin-top:12px;background:#1D7279;color:white;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;">Retry</button>`;
+    if (e.message === 'cors' || e.message === 'Failed to fetch' || e.name === 'TypeError') {
+      // CORS blocked — fall back to embedded data
+      if (window.DASH_EMBEDDED_DATA && window.DASH_EMBEDDED_DATA.length > 0) {
+        dashData = window.DASH_EMBEDDED_DATA;
+        applyFilters();
+        document.getElementById('dashLoading').style.display = 'none';
+        document.getElementById('dashContent').style.display = 'block';
+        document.getElementById('dashMain').insertAdjacentHTML('afterbegin',
+          '<div style="background:rgba(212,103,10,0.15);border:1px solid rgba(212,103,10,0.3);border-radius:8px;padding:8px 14px;font-size:0.75rem;color:#D4670A;margin-bottom:16px;">⚠️ Showing embedded snapshot — download a fresh copy from Claude to update data.</div>');
+      } else {
+        document.getElementById('dashLoading').innerHTML = `
+          <div style="text-align:center;padding:20px;">
+            <div style="font-size:0.9rem;color:#FF6B6B;margin-bottom:12px;">⚠️ Browser blocked the API call (CORS restriction on GitHub Pages)</div>
+            <div style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:20px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.6;">To view the dashboard, ask Claude to generate a fresh copy of this file — it will embed the latest Smartsheet data directly so no API call is needed.</div>
+            <button onclick="loadDashData()" style="background:#1D7279;color:white;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:8px;">↻ Retry</button>
+          </div>`;
+      }
+    } else {
+      document.getElementById('dashLoading').innerHTML = `<div style="color:#FF6B6B;font-size:0.9rem;text-align:center;">⚠️ ${e.message}</div><button onclick="loadDashData()" style="margin-top:12px;background:#1D7279;color:white;border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-family:'DM Sans',sans-serif;">Retry</button>`;
+    }
   }
+}
+
+function parseDashJson(json) {
+  dashData = (json.rows || []).map(row => {
+    const get = (title) => {
+      const col = json.columns.find(c => c.title === title);
+      if (!col) return '';
+      const cell = row.cells.find(c => c.columnId === col.id);
+      return cell?.displayValue || cell?.value || '';
+    };
+    return {
+      date: get('Submission Date'), type: get('Submission Type'),
+      name: get('Participant Name'), team: get('Team'),
+      teamPersona: get('Team Persona'), selfPersona: get('Self Persona'),
+      dominantDrift: get('Dominant Drift (Simulation)'),
+      dominantInstinct: get('Dominant Instinct (Self-Check)'),
+      idChoice: get('Identity Defender Choice'),
+      rsChoice: get('Responsible Skeptic Choice'),
+      spChoice: get('Skill Purist Choice'),
+      ooChoice: get('Overwhelmed Operator Choice'),
+      accChoice: get('Accelerator Choice'),
+      mindset: get('Mindset Shift (To)'),
+      surface: get('What I Want to Surface'),
+      experiment: get('AI Experiment Planned'),
+      followUp: get('Follow-Up Plan'),
+      impTeam1: get('Impact: Team Members Initiating AI'),
+      impTeam2: get('Impact: Conversations Shifting to How'),
+      impTeam3: get('Impact: Manual Steps Replaced'),
+      impTeam4: get('Impact: Quality Discussions on Judgment'),
+      impTeam5: get('Impact: Peers Sharing AI Practices'),
+      impSelf1: get('Impact: I Initiate AI Conversations'),
+      impSelf2: get('Impact: I Ask Before I Advise'),
+      impSelf3: get('Impact: I Build Capability Not Reassurance'),
+      impSelf4: get('Impact: I Follow Up on AI Experiments'),
+      impSelf5: get('Impact: I Hold Steady Direction'),
+    };
+  });
+  applyFilters();
+  document.getElementById('dashLoading').style.display = 'none';
+  document.getElementById('dashContent').style.display = 'block';
 }
 
 function setViewMode(mode) {
@@ -888,22 +909,27 @@ function renderDashboard() {
         </div>`).join('') + '</div>';
     }).join('') + '</div>';
 
-  // Impact chart
-  const impactItems = [
+  // Impact charts — split team vs self
+  const impactTeamItems = [
     {key:'impTeam1',label:'Team initiating AI use'},
     {key:'impTeam2',label:'Conversations shifting to "How"'},
     {key:'impTeam3',label:'Manual steps replaced'},
     {key:'impTeam4',label:'Quality discussions on judgment'},
     {key:'impTeam5',label:'Peers sharing AI practices'},
+  ];
+  const impactSelfItems = [
     {key:'impSelf1',label:'I initiate AI conversations'},
     {key:'impSelf2',label:'I ask before I advise'},
     {key:'impSelf3',label:'I build capability not reassurance'},
     {key:'impSelf4',label:'I follow up on AI experiments'},
     {key:'impSelf5',label:'I hold steady direction'},
   ];
-  const impCounts = {};
-  impactItems.forEach(i => { impCounts[i.label] = rows.filter(r=>r[i.key]==='Yes').length; });
-  barChart('chartImpact', impCounts, null, n||1);
+  const impTeamCounts = {};
+  impactTeamItems.forEach(i => { impTeamCounts[i.label] = rows.filter(r=>r[i.key]==='Yes').length; });
+  const impSelfCounts = {};
+  impactSelfItems.forEach(i => { impSelfCounts[i.label] = rows.filter(r=>r[i.key]==='Yes').length; });
+  barChart('chartImpactTeam', impTeamCounts, {'Team initiating AI use':'#1D7279','Conversations shifting to "How"':'#1D7279','Manual steps replaced':'#1D7279','Quality discussions on judgment':'#1D7279','Peers sharing AI practices':'#1D7279'}, n||1);
+  barChart('chartImpactSelf', impSelfCounts, {'I initiate AI conversations':'#CA1C68','I ask before I advise':'#CA1C68','I build capability not reassurance':'#CA1C68','I follow up on AI experiments':'#CA1C68','I hold steady direction':'#CA1C68'}, n||1);
 
   // Named table
   if (dashViewMode === 'named') {
